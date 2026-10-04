@@ -1,0 +1,9 @@
+name = "GridToPINN"
+uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+version = "0.1.0"
+
+[deps]
+Test = "8df5cdcd-8441-4b02-831f-13f1f99722af"
+
+[compat]
+julia = "1.10"
