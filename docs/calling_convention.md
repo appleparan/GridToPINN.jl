@@ -113,7 +113,7 @@ interface WasmFunction {
 | `f_poly` | `(x: number)` | `number` | x³ + 2x² + x (generic: `Dual{Float64}` 입력도 가능) |
 | `df_analytic` | `(x: number)` | `number` | 3x² + 4x + 1 |
 | `derivative_fd` | `(x: number, h: number)` | `number` | f_poly의 전진차분. h는 Float64 |
-| `derivative_dual` | `(x: number)` | `number` | f_poly의 Dual 자동미분 (정확, 오차 0). **WASM 컴파일됨. JS에서 Dual 입력 없이 호출 시 WebAssembly.Exception 발생** — JS에서는 `derivative_fd` 사용 권장 |
+| `derivative_dual` | `(x: number)` | `number` | f_poly의 Dual 자동미분 (정확, 오차 0). **브라우저(WasmGC)에서 정상 동작 확인**: e.derivative_dual(1.0) → 8.0. WASM 내부에서 Dual(x,1.0) 생성 후 f_poly_wasm 적용, .der 추출. JS에서 상수 number 전달 가능. |
 | `top_speed` | `(P, ρ, Cd, A, Froll, tol, maxiter)` | `number` | P[W], ρ[kg/m³], Cd[–], A[m²], Froll[N], tol[–], maxiter[Int64] |
 | `compare_drs` | `(P, ρ, A, Froll, Cd_closed, Cd_open, tol, maxiter)` | `number` | dv = v_open − v_closed |
 | `vec_new` | `(n: BigInt)` | `WasmGCVector` | 길이 n인 Vector{Float64} 생성. 반환값은 WasmGC struct 참조 |
@@ -675,8 +675,8 @@ export function checkWasmGCSupport(): { supported: boolean; browser: string; ver
 
 | 한계 | 영향 | 대응 |
 |---|---|---|
-| **Dual{Float64} JS 입출력 불가** | `dual_add`, `dual_mul`, `derivative_dual`은 WASM에서 컴파일되나 JS에서 Dual 입력 생성 불가 → 직접 호출 불가 | `derivative_fd`(전진차분)로 기능 대체. 또는 WASM 측 Dual 생성·반환 브릿지 함수 추가 (향후) |
-| **derivative_dual JS 호출 시 WebAssembly.Exception** | Dual 입력 없이 호출 시 예외 발생. 현재 JS에서는 사용 불가 | derivative_fd 사용. 듀얼수 개념 설명은 코드 표시로 충분 |
+| **Dual{Float64} JS 입출력 불가** | `dual_add`, `dual_mul`은 WASM에서 컴파일되나 JS에서 Dual 입력 생성 불가 → 직접 호출 불가 | Dual 입출력 브릿지 함수 추가 시 호출 가능 (향후). `derivative_fd`로 기능 대체 가능 |
+| **derivative_dual 브라우저 동작 확인** | `e.derivative_dual(1.0)` → 8.0 (브라우저에서 정상 동작). WASM 내부에서 Dual(x,1.0) 생성 후 f_poly_wasm 적용, .der 추출. JS에서 상수 number 전달 가능. | 추가 대응 불필요. 듀얼수 자동미분 실제로 브라우저에서 작동. |
 | **기본 인자(GlobalRef) 미지원** | 원본 `top_speed`, `newton` 등은 WASM 컴파일 불가 | 모든 WASM 진입점은 기본 인자 없이 모든 인자 명시. WASM 전용 래퍼 패턴 사용 |
 | **Function 인자 불가 (dynamic dispatch)** | `newton(f, df, ...)`의 f, df 인자 → dynamic dispatch → 컴파일 불가 | WASM에서는 구체적 함수 사용 또는 Newton 로직 직접 구현 |
 | **Vector 브릿지 요소별 호출 비용** | 격자 크기별 vec_set/vec_get 비용 미측정 | 7단계 Cavity 이전 측정 필요. 중소 격자(≤50×50)는 실용적 추정 |
