@@ -3,7 +3,13 @@ uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 version = "0.1.0"
 
 [deps]
+# 일반 의존성은 여기에 추가
+
+[extras]
 Test = "8df5cdcd-8441-4b02-831f-13f1f99722af"
+
+[targets]
+test = ["Test"]
 
 [compat]
 julia = "1.10"

@@ -1,5 +1,5 @@
 using Test
-using GridToPINN.Step1
+using GridToPINN.Step1DiffNewton
 
 # ---------------------------------------------------------------------------
 # 1. Dual 수 기본 연산 확인
@@ -46,22 +46,22 @@ end
 # ---------------------------------------------------------------------------
 @testset "유한차분 오차 차수" begin
     T = Float64
-    f(x) = T(3) * x^2 + T(2) * x + T(1)
-    df_exact(x) = T(6) * x + T(2)
+    # 비선형 함수: f(x) = sin(x) → f'(x) = cos(x), f'''(x) = -cos(x)
+    # 중심차분 오차 O(h²) 항이 0이 아니어서 수렴 차수 확인 가능
+    f(x) = sin(x)
+    df_exact(x) = cos(x)
 
     x0 = T(1.0)
     exact = df_exact(x0)
 
-    # 전진차분: h를 줄이며 오차 로그 기울기 ≈ 1 확인
-    hs = T.([1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6])
+    # h를 충분히 작게: truncation 오차가 rounding 오차보다 큰 구간
+    hs = T.([1e-1, 5e-2, 1e-2, 5e-3, 1e-3])
     errors_forward = [abs(derivative_fd(f, x0, h) - exact) for h in hs]
-
-    # 중심차분: 오차 로그 기울기 ≈ 2 확인
     errors_central = [abs(derivative_fd_central(f, x0, h) - exact) for h in hs]
 
-    # 로그-로그 기울기가 전진 1, 중심 2에 가까운지 확인 (대략적)
-    # (정확한 회귀 대신 인접 구간 비율 확인)
+    # 전진차분: 연속 h 간 오차 비율이 약 2~5배 (O(h) → h 1/2 → 오차 1/2)
     @test errors_forward[1] > errors_forward[end]  # h 줄면 오차 감소
+    # 중심차분: 연속 h 간 오차 비율이 약 4~25배 (O(h²) → h 1/2 → 오차 1/4)
     @test errors_central[1] > errors_central[end]
 
     # 중심차분이 전진보다 작은 오류로부터 시작함을 확인 (h=0.1 기준)
@@ -156,17 +156,19 @@ end
     T64 = Float64
     T32 = Float32
 
-    f(x) = T64(3) * x^2 + T64(2) * x + T64(1)
-    df_exact(x) = T64(6) * x + T64(2)
-    x0 = T64(1.0)
+    # f(x) = exp(x): f'''(x) = exp(x) ≠ 0 → 중심차분 절단오차 O(h²) 항이 존재
+    # h가 작아지면 절단오차 감소 + 반올림오차 증가 → U자 곡선, 중간에서 최소
+    f(x) = exp(x)
+    df_exact(x) = exp(x)
+    x0 = T64(0.0)
     exact = df_exact(x0)
 
-    # Float64: h를 아주 작게 하면 오차 다시 증가 (반올림)
+    # Float64: 넓은 h 범위에서 오차 변화 추적
     hs_64 = T64.([1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15])
     errs_64 = [abs(derivative_fd_central(f, x0, h) - exact) for h in hs_64]
-    # 오차가 최소인 지점 이후 다시 증가해야 함
-    @test minimum(errs_64) < errs_64[1]   # 충분히 작은 h에서 오차 감소함을 확인
-    # 반올림으로 다시 증가하는 구간이 있는지 확인: 최소점 이후 몇 개 값이 더 큰지
+    # 충분히 큰 h(0.1)에서는 절단오차가 지배 → 작은 h에서 오차가 더 작아야 함
+    @test minimum(errs_64) < errs_64[1]
+    # 최소점이 배열 끝에 있지 않음 = 반올림오차가 작용하는 구간이 존재함
     minidx = argmin(errs_64)
-    @test minidx < length(errs_64)  # 최소점이 끝에 있지 않음 (반올림이 작용함)
+    @test minidx < length(errs_64)
 end

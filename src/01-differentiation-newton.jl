@@ -1,4 +1,4 @@
-# Step1.jl — 미분과 Newton법
+# 01-differentiation-newton.jl — 미분과 Newton법 (1단계)
 #
 # 핵심 질문: DRS를 열면 최고속도가 얼마나 오르나?
 #
@@ -11,7 +11,14 @@
 # - Newton법, 유한차분(전진/중심), 이중수 자동미분 세 가지 미분 방법 제공
 # - 이중수 Dual{T}는 값과 미분을 함께 들고 다니는 구조체
 
-module Step1
+module Step1DiffNewton
+
+export Dual,
+       derivative_fd, derivative_fd_central, derivative_dual,
+       newton, newton_with_trace,
+       drag_force, power_to_overcome_drag, resistance, power_balance,
+       top_speed, top_speed_analytic_zero_rolling, compare_drs,
+       dualtype
 
 # ---------------------------------------------------------------------------
 # Dual 수 — 값과 미분을 함께 들고 다니는 작은 구조체
@@ -28,8 +35,9 @@ struct Dual{T<:AbstractFloat} <: Number
     der::T
 end
 
-# 생성자 편의
-Dual(x::T, d::T) where {T<:AbstractFloat} = Dual{T}(x, d)
+# 생성자 편의 — outer 생성자로 제공 (struct 블록 내 inner 생성자 충돌 회피)
+# Julia 1.10: 동일한 T 서명의 outer 생성자가 inner 생성자와 충돌하므로
+# promote 기반 생성자만 외부 제공, 동일 T 케이스는 auto inner 생성자로 처리
 Dual(x::Real, d::Real) = Dual(promote(x, d)...)
 Dual(x::Real) = Dual(promote(x, one(x))...)
 
@@ -45,16 +53,16 @@ function Base.:+(a::Dual, b::Dual)
     T = promote_type(dualtype(a), dualtype(b))
     Dual(T(a.val + b.val), T(a.der + b.der))
 end
-Base.:+(a::Dual, b::Real) = a + Dual(b)
-Base.:+(b::Real, a::Dual) = a + b
+Base.:+(a::Dual, b::Real) = Dual(a.val + b, a.der)
+Base.:+(b::Real, a::Dual) = Dual(a.val + b, a.der)
 
 # 뺄셈
 function Base.:-(a::Dual, b::Dual)
     T = promote_type(dualtype(a), dualtype(b))
     Dual(T(a.val - b.val), T(a.der - b.der))
 end
-Base.:-(a::Dual, b::Real) = a - Dual(b)
-Base.:-(b::Real, a::Dual) = Dual(b) - a
+Base.:-(a::Dual, b::Real) = Dual(a.val - b, a.der)
+Base.:-(b::Real, a::Dual) = Dual(b - a.val, -a.der)
 Base.:-(a::Dual) = Dual(-a.val, -a.der)
 
 # 곱셈 (곱의 미분법: (fg)' = f'g + fg')
@@ -62,8 +70,9 @@ function Base.:*(a::Dual, b::Dual)
     T = promote_type(dualtype(a), dualtype(b))
     Dual(T(a.val * b.val), T(a.der * b.val + a.val * b.der))
 end
-Base.:*(a::Dual, b::Real) = a * Dual(b)
-Base.:*(b::Real, a::Dual) = a * b
+# 상수와의 곱: 상수의 미분은 0
+Base.:*(a::Dual, b::Real) = Dual(a.val * b, a.der * b)
+Base.:*(b::Real, a::Dual) = Dual(a.val * b, a.der * b)
 
 # 나눗셈 (몫의 미분법: (f/g)' = (f'g - fg')/g²)
 function Base.:/(a::Dual, b::Dual)
@@ -72,8 +81,9 @@ function Base.:/(a::Dual, b::Dual)
     der = (a.der * b.val - a.val * b.der) / (b.val * b.val)
     Dual(T(val), T(der))
 end
-Base.:/(a::Dual, b::Real) = a / Dual(b)
-Base.:/(b::Real, a::Dual) = Dual(b) / a
+# 상수 나눗셈
+Base.:/(a::Dual, b::Real) = Dual(a.val / b, a.der / b)
+Base.:/(b::Real, a::Dual) = Dual(b / a.val, -b * a.der / (a.val * a.val))
 
 # 거듭제곱 (정수 승만 — 연쇄법칙 + 거듭제곱 미분법)
 function Base.:^(a::Dual, n::Integer)
@@ -166,7 +176,7 @@ Newton 반복마다 (|x_new - x_old|, |f(x)|)를 기록한 벡터를 함께 반�
 """
 function newton_with_trace(f, df, x0::T; tol::T = T(1e-12), maxiter::Int = 50) where {T<:AbstractFloat}
     x = x0
-    history = Vector{T}()
+    history = Vector{Tuple{T, T}}()
     sizehint!(history, maxiter)
     for i in 1:maxiter
         fx = f(x)
@@ -262,4 +272,4 @@ function compare_drs(P::T, ρ::T, A::T, Froll::T, Cd_closed::T, Cd_open::T;
     (closed = v_closed, open = v_open, dv = v_open - v_closed)
 end
 
-end # module
+end # module Step1DiffNewton
