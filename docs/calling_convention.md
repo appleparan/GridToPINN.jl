@@ -165,7 +165,7 @@ WASM 진입점은 브로드캐스팅 없이 명시적 루프로 구현했으며,
 | `erfc` | `(x: number)` | `number` | 상오차함수, A&S 7.1.26 근사. \|오차\| ≤ 1.5e-7. erfc(0) = 0.999999999 (정확히 1이 아님) |
 | `stokes_first` | `(y, t, U, ν: number)` | `number` | 움직이는 벽(Stokes 1종) 해석해 U·erfc(y/(2√(νt))). t > 0 필요 (t=0은 불연속) |
 | `diffusion_depth` | `(ν, t: number)` | `number` | 확산 깊이 δ = 2√(νt). 그 깊이에서 u/U = erfc(1) ≈ 0.157 |
-| `diffuse_advance` | `(u: WasmGCVector, Δt, α, dx: number, nsteps: BigInt, method: BigInt)` | `BigInt` | **u를 in-place 갱신**. method: 1n=euler, 2n=rk4. Dirichlet 고정 경계. 상태형 호출: vec_new → vec_set(초기조건) → diffuse_advance(nsteps) → vec_get(현재 장). 중간 결과는 nsteps=1 반복 호출로 꺼냄 |
+| `diffuse_advance` | `(u: WasmGCVector, Δt, α, dx: number, nsteps: BigInt, method: BigInt)` | `BigInt` | **u를 in-place 갱신**. method: 1n=euler, 2n=rk4, 3n=cn(Crank-Nicolson, 무조건 안정·시간 2차). Dirichlet 고정 경계. 상태형 호출: vec_new → vec_set(초기조건) → diffuse_advance(nsteps) → vec_get(현재 장). 중간 결과는 nsteps=1 반복 호출로 꺼냄 |
 | `max_abs` | `(u: WasmGCVector)` | `number` | max\|u_i\| — 발산 확인용 |
 
 Step3 참조값 (네이티브 Julia Float64와 비트 단위 일치, e2e 테스트로 확인):
@@ -183,9 +183,17 @@ Step3 참조값 (네이티브 Julia Float64와 비트 단위 일치, e2e 테스�
   꿀: y∈[0,0.5], N=200, RK4 Δt=5e-4 ×2000스텝
     최대오차 = 4.256e-05
 
-안정 한계 (명시적 방법):
-  Euler: Δt ≤ Δy²/(2α)    RK4: Δt ≤ 0.696·Δy²/α
+안정 한계:
+  명시적: Euler Δt ≤ Δy²/(2α), RK4 Δt ≤ 0.696·Δy²/α
+  음해법: CN 무조건 안정 (시간 2차, Δt 절반 → 오차 1/4; Euler는 1/2)
   같은 격자에서 꿀(ν=2e-3)은 물(ν=1e-6)보다 2000배 작은 Δt 필요
+
+발산 서사 (깨뜨리기, N=20, α=0.01, Δt=0.3=2.4×한계,
+초기조건 sin(πy)+sin(9πy)·1e-3 — 고주파 섭동은 눈에 안 보임):
+  Euler  스텝 1–25 매끄러운 감쇠(0.97→0.47) → 26–27 전환 → 28–30 톱니 발산(6.65)
+  RK4    같은 조건 스텝 30에서 3.5e14
+  CN     같은 조건 정상 (max 0.412, 해석해 오차 7.2e-4)
+  단, CN도 큰 Δt에서 최대원리는 위반 (부호가 번갈아 나오는 링, 음수 값)
 ```
 
 ### 3.3. 인자 타입 매핑 (WasmTarget → JS)

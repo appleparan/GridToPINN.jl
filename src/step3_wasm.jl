@@ -67,8 +67,46 @@ function _diff_rk4_step!(u::Vector{Float64}, Δt::Float64, α::Float64, dx::Floa
     return Int64(0)
 end
 
+# ── Crank–Nicolson 1스텝 (in-place) — Thomas 알고리즘 ─────────────────────
+# 네이티브 diffuse_cn_step과 같은 계수·연산 순서 (비트 일치 확인됨).
+# 삼중대각 시스템: (I − (Δt/2)L) u_new = (I + (Δt/2)L) u, Dirichlet 고정 경계.
+function _diff_cn_step!(u::Vector{Float64}, Δt::Float64, α::Float64, dx::Float64)
+    n = length(u)
+    m = n - 2
+    (m >= 1) || return Int64(0)
+
+    r = α * Δt / (2.0 * dx * dx)
+    b = Vector{Float64}(undef, m)
+    c = Vector{Float64}(undef, m)
+    d = Vector{Float64}(undef, m)
+    for k in 1:m
+        i = k + 1
+        b[k] = 1.0 + 2.0 * r
+        c[k] = -r
+        d[k] = r * u[i - 1] + (1.0 - 2.0 * r) * u[i] + r * u[i + 1]
+    end
+    d[1] = d[1] + r * u[1]
+    d[m] = d[m] + r * u[n]
+
+    # Thomas 전진 소거
+    c[1] = c[1] / b[1]
+    d[1] = d[1] / b[1]
+    for k in 2:m
+        denom = b[k] + r * c[k - 1]
+        c[k] = c[k] / denom
+        d[k] = (d[k] + r * d[k - 1]) / denom
+    end
+    # 후진 대입
+    u[m + 1] = d[m]
+    for k in (m - 1):-1:1
+        u[k + 1] = d[k] - c[k] * u[k + 2]
+    end
+    return Int64(0)
+end
+
 # ── WASM 진입: 확산 시뮬레이션 (상태를 가진 호출 형태) ───────────────────
-# u (WasmGC Vector{Float64})를 nsteps만큼 전진 (in-place). method: 1=euler, 2=rk4.
+# u (WasmGC Vector{Float64})를 nsteps만큼 전진 (in-place).
+# method: 1=euler, 2=rk4, 3=cn (Crank–Nicolson, 무조건 안정).
 # JS 흐름: vec_new(n) → vec_set으로 초기조건 → diffuse_advance(u, …) →
 #          vec_get으로 현재 장 읽기 → 필요한 만큼 반복 (중간 결과 계속 꺼내기)
 function diffuse_advance_wasm(
@@ -83,8 +121,12 @@ function diffuse_advance_wasm(
         for _ in 1:nsteps
             _diff_rk4_step!(u, Δt, α, dx)
         end
+    elseif method == 3
+        for _ in 1:nsteps
+            _diff_cn_step!(u, Δt, α, dx)
+        end
     else
-        throw(ErrorException("diffuse_advance_wasm: method는 1(euler) 또는 2(rk4)"))
+        throw(ErrorException("diffuse_advance_wasm: method는 1(euler), 2(rk4), 3(cn)"))
     end
     return Int64(0)
 end

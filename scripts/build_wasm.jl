@@ -135,7 +135,7 @@ function make_manifest()
                  "args" => ["Vector u", "Float64 dt", "Float64 nu", "Float64 dx",
                             "Int64 nsteps", "Int64 method"],
                  "ret" => "Int64",
-                 "note" => "확산 n스텝 전진 (u in-place 갱신). method 1=euler, 2=rk4. Dirichlet 고정 경계. 상태형 호출: vec_new로 만들고 vec_set으로 초기조건 → 이 함수로 전진 → vec_get으로 장 읽기"),
+                 "note" => "확산 n스텝 전진 (u in-place 갱신). method 1=euler, 2=rk4, 3=cn(Crank-Nicolson, 무조건 안정). Dirichlet 고정 경계. 상태형 호출: vec_new로 만들고 vec_set으로 초기조건 → 이 함수로 전진 → vec_get으로 장 읽기"),
             Dict("name" => "max_abs", "args" => ["Vector u"], "ret" => "Float64",
                  "note" => "max|u_i| — 발산 확인용 보조"),
         ]),
@@ -172,11 +172,12 @@ function make_manifest()
                  "used_by" => ["diffuse_advance"]),
             Dict("name" => "dx", "unit" => "m", "default" => 1e-4, "range" => [1e-5, 1.0],
                  "used_by" => ["diffuse_advance"]),
-            Dict("name" => "method", "unit" => "-", "default" => 2, "range" => [1, 2],
+            Dict("name" => "method", "unit" => "-", "default" => 2, "range" => [1, 3],
                  "used_by" => ["ode_integrate", "diffuse_advance"],
                  "options" => Vector{Any}([
                      Dict("id" => 1, "name" => "Euler (1차)"),
                      Dict("id" => 2, "name" => "RK4 (4차)"),
+                     Dict("id" => 3, "name" => "Crank-Nicolson (음해, 무조건 안정)"),
                  ])),
         ]),
         "alternatives" => Vector{Any}([
@@ -193,6 +194,8 @@ function make_manifest()
                           "fn" => "diffuse_advance", "param" => "method=1"),
                      Dict("id" => "rk4", "name" => "RK4 (4차, 한계 dt = 0.696*dx^2/nu)",
                           "fn" => "diffuse_advance", "param" => "method=2"),
+                     Dict("id" => "cn", "name" => "Crank-Nicolson (음해, 무조건 안정, 시간 2차)",
+                          "fn" => "diffuse_advance", "param" => "method=3"),
                  ])),
             Dict("location" => "적분기 (ODE 적분)",
                  "options" => Vector{Any}([
@@ -212,6 +215,7 @@ function make_manifest()
             "Step3 확산은 명시적 방법 - 안정 한계 dt <= dx^2/(2nu)(Euler), 0.696*dx^2/nu(RK4), 초과 시 발산",
             "erfc는 A&S 7.1.26 근사 (|오차| <= 1.5e-7) - 더 높은 정밀도가 필요하면 고차 근사로 교체",
             "diffuse_advance는 u를 in-place 갱신 - 중간 결과는 nsteps=1 반복 호출로 꺼낸다",
+            "CN(method=3)은 무조건 안정이지만 최대원리는 없음 - 큰 dt에서 부호가 번갈아 나오는 링(음수 값) 가능",
         ]),
     )
 end

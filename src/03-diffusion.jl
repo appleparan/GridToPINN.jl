@@ -44,7 +44,7 @@ using ..Step2TimeIntegration
 export diffusion_rhs_dirichlet, diffusion_rhs_periodic,
        erfc_approx, stokes_first_solution, diffusion_depth,
        sin_mode_initial, sin_mode_exact,
-       diffuse
+       diffuse_cn_step, diffuse
 
 # ---------------------------------------------------------------------------
 # 확산 연산자 (선의 방법 우변) — 4, 5, 7단계에서 재사용
@@ -152,17 +152,73 @@ end
 # ---------------------------------------------------------------------------
 
 """
+    diffuse_cn_step(u::AbstractVector{T}, Δt::T, α::T, dx::T) -> Vector{T}
+
+Crank–Nicolson (음해법) 1스텝:
+    (I − (Δt/2)·L_h) uⁿ⁺¹ = (I + (Δt/2)·L_h) uⁿ
+삼중대각 시스템을 Thomas 알고리즘(소거+후진대입, O(n))으로 푼다 — 패키지 없음.
+
+명시적 방법과 다른 점:
+- 무조건 안정 (모든 모드 앰플리팩터 |g| ≤ 1) → Δt를 크게 잡아도 발산하지 않는다
+- 시간 2차 정확도 (Euler 1차, CN은 Δt 절반 → 오차 1/4)
+- 단, 최대원리는 보장하지 않는다: |λ|Δt ≫ 1이면 부호가 번갈아 나오는 링(진동)이 남는다
+"""
+function diffuse_cn_step(u::AbstractVector{T}, Δt::T, α::T, dx::T) where {T<:AbstractFloat}
+    n = length(u)
+    u_new = copy(u)
+    m = n - 2  # 내부 미지수 개수 (u₂ … u_{n−1})
+    m <= 0 && return u_new
+
+    r = α * Δt / (T(2) * dx * dx)
+    # 삼중대각: a(부대각) b(주대각) c(초대각), d(우변)
+    b = Vector{T}(undef, m)
+    c = Vector{T}(undef, m)
+    d = Vector{T}(undef, m)
+    @inbounds for k in 1:m
+        i = k + 1
+        b[k] = one(T) + T(2) * r
+        c[k] = -r
+        d[k] = r * u[i - 1] + (one(T) - T(2) * r) * u[i] + r * u[i + 1]
+    end
+    # Dirichlet 경계는 고정: u₁ⁿ⁺¹ = u₁ⁿ, uₙⁿ⁺¹ = uₙ → 알려진 항을 우변으로
+    d[1] += r * u[1]
+    d[m] += r * u[n]
+
+    # Thomas 전진 소거 (c′, d′를 c, d 버퍼에 겹쳐 씀)
+    @inbounds c[1] = c[1] / b[1]
+    @inbounds d[1] = d[1] / b[1]
+    @inbounds for k in 2:m
+        denom = b[k] + r * c[k - 1]   # b[k] − a·c′[k−1], a = −r
+        c[k] = c[k] / denom
+        d[k] = (d[k] + r * d[k - 1]) / denom  # (d[k] − a·d′[k−1]) / denom
+    end
+    # 후진 대입
+    @inbounds u_new[m + 1] = d[m]
+    @inbounds for k in (m - 1):-1:1
+        u_new[k + 1] = d[k] - c[k] * u_new[k + 2]
+    end
+    return u_new
+end
+
+"""
     diffuse(u0::AbstractVector{T}, Δt::T, α::T, dx::T, nsteps::Int; method) -> Vector{T}
 
-확산 ODE 묶음을 2단계 적분기로 nsteps 전진한다.
-method: :euler 또는 :rk4 (2단계의 대안 지점을 그대로 쓴다).
+확산 ODE 묶음을 nsteps 전진한다.
+method: :euler, :rk4 (2단계 적분기 재사용) 또는 :cn (음해법, 무조건 안정).
 경계값은 우변이 0이라 고정된다 (Dirichlet).
 """
 function diffuse(u0::AbstractVector{T}, Δt::T, α::T, dx::T, nsteps::Int;
                  method::Symbol = :rk4) where {T<:AbstractFloat}
+    if method === :cn
+        u = copy(u0)
+        for _ in 1:nsteps
+            u = diffuse_cn_step(u, Δt, α, dx)
+        end
+        return u
+    end
     stepfun = method === :euler ? Step2TimeIntegration.euler_step :
               method === :rk4 ? Step2TimeIntegration.rk4_step :
-              throw(ArgumentError("method는 :euler 또는 :rk4"))
+              throw(ArgumentError("method는 :euler, :rk4 또는 :cn"))
     f = v -> diffusion_rhs_dirichlet(v, α, dx)
     u = copy(u0)
     for _ in 1:nsteps
