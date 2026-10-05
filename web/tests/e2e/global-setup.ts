@@ -14,7 +14,8 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
 	await new Promise<void>((resolve, reject) => {
 		const timer = setTimeout(() => reject(new Error(`preview server did not start:\n${log}`)), 30_000);
 		const onData = (chunk: Buffer) => {
-			log += chunk.toString();
+			// CI는 색을 켜서 'Local'과 ':' 사이에 ANSI 코드가 끼므로 지우고 찾는다.
+			log += chunk.toString().replace(/\x1b\[[0-9;]*m/g, '');
 			if (log.includes('Local:')) {
 				clearTimeout(timer);
 				resolve();
