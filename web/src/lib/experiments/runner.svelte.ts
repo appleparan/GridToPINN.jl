@@ -87,6 +87,7 @@ export function createRunner(
 				status = 'diverged';
 				return;
 			}
+			if (status !== 'running') return; // paused while the frame was in flight
 			if (frame >= p.frames) {
 				status = 'done';
 				return;
@@ -136,6 +137,10 @@ export function createRunner(
 		resume() {
 			if (status !== 'paused') return;
 			loopId++;
+			if (plan && frame >= plan.frames) {
+				status = 'done'; // the last frame landed while paused
+				return;
+			}
 			status = 'running';
 			void loop(token, loopId);
 		},
