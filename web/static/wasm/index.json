@@ -1,0 +1,33 @@
+{
+  "generated_with": {
+    "julia": "1.12.7",
+    "wasmtarget": "0.5.3"
+  },
+  "schema": 1,
+  "steps": [
+    {
+      "bytes": 34905,
+      "manifest": "step1.json",
+      "parity": "step1.parity.json",
+      "step": 1,
+      "title": "미분과 Newton법",
+      "wasm": "step1.wasm"
+    },
+    {
+      "bytes": 76542,
+      "manifest": "step2.json",
+      "parity": "step2.parity.json",
+      "step": 2,
+      "title": "시간 전진",
+      "wasm": "step2.wasm"
+    },
+    {
+      "bytes": 72546,
+      "manifest": "step3.json",
+      "parity": "step3.parity.json",
+      "step": 3,
+      "title": "확산",
+      "wasm": "step3.wasm"
+    }
+  ]
+}

@@ -158,8 +158,6 @@ vite.config.ts.timestamp-*
 *.jl.mem
 /wasm/Manifest.toml
 
-# Generated WASM artifacts (rebuild: julia +1.12 --project=wasm wasm/build.jl)
-/web/static/wasm/
 
 # Test output
 test-results/

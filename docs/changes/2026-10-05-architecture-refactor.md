@@ -48,7 +48,7 @@ WasmTarget 0.5.3, Julia 1.12.7에서 작은 실험 모듈을 컴파일해 Node 2
 | 커널 | `src/0N-*.jl`, 단계별 하위 모듈 | `src/stepN/*.jl`, 모듈 하나, 의존성 없음 |
 | WASM 진입점 | `src/stepN_wasm.jl` (재구현) | `wasm/entries/stepN.jl` (타입 고정과 대안 선택만) |
 | 빌드 | `scripts/build_wasm.jl`, 커널 패키지가 WasmTarget에 의존 | `wasm/` 별도 환경, `wasm/build.jl` |
-| 산출물 | `step1.wasm` 하나 (커밋됨) | 단계별 `.wasm`, Float64와 Float32 (git에 넣지 않음) |
+| 산출물 | `step1.wasm` 하나 (커밋됨) | 단계별 `.wasm`, Float64와 Float32 (커밋됨, CI가 소스와 어긋나면 실패) |
 | 목록 파일 | 손으로 작성 | 선언에서 생성, 소스 줄 범위 포함 |
 | 일치 검사 | 없음 | 같은 사례를 Julia, Node, 브라우저에서 실행 |
 | 웹 | 동작하지 않는 껍데기 | 연결 모듈, Worker, 검증 페이지 |

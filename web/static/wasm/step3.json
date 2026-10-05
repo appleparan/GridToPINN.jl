@@ -1,0 +1,836 @@
+{
+  "alternatives": [
+    {
+      "arg": "method",
+      "id": "integrator",
+      "options": [
+        {
+          "key": "euler",
+          "label": "Euler (명시적, 1차)",
+          "source": {
+            "file": "src/step3/simulation.jl",
+            "lines": [
+              41,
+              47
+            ]
+          },
+          "value": 1
+        },
+        {
+          "key": "rk4",
+          "label": "RK4 (명시적, 4차)",
+          "source": {
+            "file": "src/step3/simulation.jl",
+            "lines": [
+              49,
+              55
+            ]
+          },
+          "value": 2
+        },
+        {
+          "key": "cn",
+          "label": "Crank–Nicolson (음해법, 2차)",
+          "source": {
+            "file": "src/step3/simulation.jl",
+            "lines": [
+              57,
+              62
+            ]
+          },
+          "value": 3
+        }
+      ],
+      "title": "시간 적분기",
+      "used_by": [
+        "advance"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "args": [
+        {
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "name": "L",
+          "type": "real"
+        },
+        {
+          "name": "U",
+          "type": "real"
+        },
+        {
+          "name": "ν",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "본 문제의 시뮬레이션을 만든다: [0, L]을 N칸으로 나누고 벽(u[1])만 속도 U.",
+      "exports": {
+        "f32": "moving_wall_f32",
+        "f64": "moving_wall_f64"
+      },
+      "name": "moving_wall",
+      "returns": "ref:Diffusion1D",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          19,
+          28
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "N",
+          "type": "int"
+        },
+        {
+          "name": "α",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "검증 문제의 시뮬레이션을 만든다: [0, 1]을 N칸으로 나누고 sin(πy)로 시작.",
+      "exports": {
+        "f32": "sin_mode_f32",
+        "f64": "sin_mode_f64"
+      },
+      "name": "sin_mode",
+      "returns": "ref:Diffusion1D",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          30,
+          39
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "sim",
+          "type": "ref:Diffusion1D"
+        },
+        {
+          "name": "Δt",
+          "type": "real"
+        },
+        {
+          "name": "nsteps",
+          "type": "int"
+        },
+        {
+          "name": "method",
+          "type": "int"
+        }
+      ],
+      "display": null,
+      "doc": "method로 고른 적분기로 nsteps걸음 전진하고 새 시각 [s]를 돌려준다. sim은 제자리에서 바뀐다.",
+      "exports": {
+        "f32": "advance_f32",
+        "f64": "advance_f64"
+      },
+      "name": "advance",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          64,
+          75
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "sim",
+          "type": "ref:Diffusion1D"
+        }
+      ],
+      "display": null,
+      "doc": "현재 속도장 u (N+1점).",
+      "exports": {
+        "f32": "field_f32",
+        "f64": "field_f64"
+      },
+      "name": "field",
+      "returns": "vec",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          7,
+          17
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "sim",
+          "type": "ref:Diffusion1D"
+        }
+      ],
+      "display": null,
+      "doc": "현재 시각 [s].",
+      "exports": {
+        "f32": "time_f32",
+        "f64": "time_f64"
+      },
+      "name": "time",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          7,
+          17
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "sim",
+          "type": "ref:Diffusion1D"
+        },
+        {
+          "name": "U",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "Stokes 해석해와의 최대 절대오차 [m/s].",
+      "exports": {
+        "f32": "moving_wall_error_f32",
+        "f64": "moving_wall_error_f64"
+      },
+      "name": "moving_wall_error",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          84,
+          96
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "sim",
+          "type": "ref:Diffusion1D"
+        }
+      ],
+      "display": null,
+      "doc": "sin(πy)·exp(−α·π²·t)와의 최대 절대오차.",
+      "exports": {
+        "f32": "sin_mode_error_f32",
+        "f64": "sin_mode_error_f64"
+      },
+      "name": "sin_mode_error",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          98,
+          110
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "u",
+          "type": "vec"
+        }
+      ],
+      "display": null,
+      "doc": "max |uᵢ|. 발산을 알아보는 데 쓴다.",
+      "exports": {
+        "f32": "max_abs_f32",
+        "f64": "max_abs_f64"
+      },
+      "name": "max_abs",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          77,
+          82
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "x",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "상보오차함수(Abramowitz–Stegun 근사).",
+      "exports": {
+        "f32": "erfc_f32",
+        "f64": "erfc_f64"
+      },
+      "name": "erfc",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          11,
+          27
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "y",
+          "type": "real"
+        },
+        {
+          "name": "t",
+          "type": "real"
+        },
+        {
+          "name": "U",
+          "type": "real"
+        },
+        {
+          "name": "ν",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "움직이는 벽의 해석해 U·erfc(y/(2√(ν·t))) [m/s].",
+      "exports": {
+        "f32": "stokes_first_solution_f32",
+        "f64": "stokes_first_solution_f64"
+      },
+      "name": "stokes_first_solution",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          29,
+          37
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "ν",
+          "type": "real"
+        },
+        {
+          "name": "t",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "확산 깊이 2√(ν·t) [m].",
+      "exports": {
+        "f32": "diffusion_depth_f32",
+        "f64": "diffusion_depth_f64"
+      },
+      "name": "diffusion_depth",
+      "returns": "real",
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          39,
+          44
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "n",
+          "type": "int"
+        }
+      ],
+      "display": null,
+      "doc": "길이 n인 0 벡터를 만든다. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_new_f32",
+        "f64": "vec_new_f64"
+      },
+      "name": "vec_new",
+      "returns": "vec",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        }
+      ],
+      "display": null,
+      "doc": "벡터 길이. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_len_f32",
+        "f64": "vec_len_f64"
+      },
+      "name": "vec_len",
+      "returns": "int",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        },
+        {
+          "name": "i",
+          "type": "int"
+        }
+      ],
+      "display": null,
+      "doc": "v[i], i는 1부터. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_get_f32",
+        "f64": "vec_get_f64"
+      },
+      "name": "vec_get",
+      "returns": "real",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        },
+        {
+          "name": "i",
+          "type": "int"
+        },
+        {
+          "name": "x",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "v[i] = x 하고 x를 돌려준다. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_set_f32",
+        "f64": "vec_set_f64"
+      },
+      "name": "vec_set",
+      "returns": "real",
+      "source": null
+    }
+  ],
+  "limits": [
+    "method가 1~3 밖이면 2(RK4)로 동작한다.",
+    "명시적 방법이 안정 한계를 넘으면 예외 없이 값이 커져 Infinity/NaN이 된다.",
+    "Crank–Nicolson은 발산하지 않지만 Δt가 크면 부호가 번갈아 나오는 링(진동)이 남는다.",
+    "t = 0에서 불연속인 본 문제는 수렴 차수를 확인하기에 부적합하다. sin_mode로 확인한다.",
+    "Diffusion1D는 JS에서 불투명한 참조다. field로 벡터를 꺼내 vec_get으로 읽는다."
+  ],
+  "parameters": [
+    {
+      "default": 100.0,
+      "display": null,
+      "doc": "격자 칸 수.",
+      "max": 5000.0,
+      "min": 4.0,
+      "name": "N",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          19,
+          28
+        ]
+      },
+      "unit": "칸",
+      "used_by": [
+        "moving_wall",
+        "sin_mode"
+      ]
+    },
+    {
+      "default": 0.1,
+      "display": null,
+      "doc": "영역 길이.",
+      "max": 10.0,
+      "min": 0.001,
+      "name": "L",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          19,
+          28
+        ]
+      },
+      "unit": "m",
+      "used_by": [
+        "moving_wall"
+      ]
+    },
+    {
+      "default": 1.0,
+      "display": null,
+      "doc": "벽 속도.",
+      "max": 100.0,
+      "min": 0.01,
+      "name": "U",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          19,
+          28
+        ]
+      },
+      "unit": "m/s",
+      "used_by": [
+        "moving_wall",
+        "moving_wall_error",
+        "stokes_first_solution"
+      ]
+    },
+    {
+      "default": 1.0e-6,
+      "display": null,
+      "doc": "동점성 계수. 물 ≈ 1e-6, 꿀 ≈ 2e-3 (대표값).",
+      "max": 0.1,
+      "min": 1.0e-9,
+      "name": "ν",
+      "presets": [
+        {
+          "label": "물",
+          "value": 1.0e-6
+        },
+        {
+          "label": "꿀",
+          "value": 0.002
+        }
+      ],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          19,
+          28
+        ]
+      },
+      "unit": "m²/s",
+      "used_by": [
+        "moving_wall",
+        "stokes_first_solution",
+        "diffusion_depth"
+      ]
+    },
+    {
+      "default": 0.1,
+      "display": null,
+      "doc": "검증 문제의 확산계수.",
+      "max": 10.0,
+      "min": 1.0e-6,
+      "name": "α",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          30,
+          39
+        ]
+      },
+      "unit": "m²/s",
+      "used_by": [
+        "sin_mode"
+      ]
+    },
+    {
+      "default": 0.01,
+      "display": null,
+      "doc": "시간 간격. 명시적 방법은 Δt ≤ Δy²/(2α) 부근을 넘으면 발산한다.",
+      "max": 10.0,
+      "min": 1.0e-6,
+      "name": "Δt",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          64,
+          75
+        ]
+      },
+      "unit": "s",
+      "used_by": [
+        "advance"
+      ]
+    },
+    {
+      "default": 100.0,
+      "display": null,
+      "doc": "한 번에 전진할 걸음 수.",
+      "max": 100000.0,
+      "min": 1.0,
+      "name": "nsteps",
+      "presets": [],
+      "source": {
+        "file": "src/step3/simulation.jl",
+        "lines": [
+          64,
+          75
+        ]
+      },
+      "unit": "걸음",
+      "used_by": [
+        "advance"
+      ]
+    },
+    {
+      "default": 0.5,
+      "display": null,
+      "doc": "erfc를 계산할 값.",
+      "max": 5.0,
+      "min": -5.0,
+      "name": "x",
+      "presets": [],
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          11,
+          27
+        ]
+      },
+      "unit": "-",
+      "used_by": [
+        "erfc",
+        "vec_set"
+      ]
+    },
+    {
+      "default": 0.002,
+      "display": null,
+      "doc": "벽에서의 거리.",
+      "max": 10.0,
+      "min": 0.0,
+      "name": "y",
+      "presets": [],
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          29,
+          37
+        ]
+      },
+      "unit": "m",
+      "used_by": [
+        "stokes_first_solution"
+      ]
+    },
+    {
+      "default": 1.0,
+      "display": null,
+      "doc": "시각. 0이면 극한값(벽면 U, 그 아래 0).",
+      "max": 10000.0,
+      "min": 0.0,
+      "name": "t",
+      "presets": [],
+      "source": {
+        "file": "src/step3/exact.jl",
+        "lines": [
+          29,
+          37
+        ]
+      },
+      "unit": "s",
+      "used_by": [
+        "stokes_first_solution",
+        "diffusion_depth"
+      ]
+    }
+  ],
+  "precisions": [
+    "f64",
+    "f32"
+  ],
+  "question": "벽이 움직이면 물과 꿀 중 어느 쪽이 더 깊이 끌려오나",
+  "requirements": [
+    "WebAssembly GC를 지원하는 브라우저"
+  ],
+  "schema": 1,
+  "sources": [
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            11,
+            27
+          ],
+          "name": "erfc_approx"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            29,
+            37
+          ],
+          "name": "stokes_first_solution"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            39,
+            44
+          ],
+          "name": "diffusion_depth"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            46,
+            51
+          ],
+          "name": "sin_mode_initial"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            53,
+            58
+          ],
+          "name": "sin_mode_exact"
+        }
+      ],
+      "file": "src/step3/exact.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            8,
+            44
+          ],
+          "name": "crank_nicolson_step"
+        }
+      ],
+      "file": "src/step3/implicit.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            10,
+            25
+          ],
+          "name": "diffusion_rhs_dirichlet"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            27,
+            42
+          ],
+          "name": "diffusion_rhs_periodic"
+        }
+      ],
+      "file": "src/step3/operator.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "struct",
+          "lines": [
+            7,
+            17
+          ],
+          "name": "Diffusion1D"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            19,
+            28
+          ],
+          "name": "moving_wall"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            30,
+            39
+          ],
+          "name": "sin_mode"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            41,
+            47
+          ],
+          "name": "diffusion_euler_step"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            49,
+            55
+          ],
+          "name": "diffusion_rk4_step"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            57,
+            62
+          ],
+          "name": "diffusion_cn_step"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            64,
+            75
+          ],
+          "name": "advance!"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            77,
+            82
+          ],
+          "name": "max_abs"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            84,
+            96
+          ],
+          "name": "moving_wall_error"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            98,
+            110
+          ],
+          "name": "sin_mode_error"
+        }
+      ],
+      "file": "src/step3/simulation.jl"
+    }
+  ],
+  "step": 3,
+  "title": "확산",
+  "wasm": "step3.wasm"
+}

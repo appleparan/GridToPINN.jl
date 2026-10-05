@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"build:wasm": "cd .. && julia +1.12 --project=wasm wasm/build.jl && node wasm/check_parity.mjs",
+		"build:all": "bun run build:wasm && bun run build",
 		"preview": "vite preview --strictPort",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"test": "vitest run",

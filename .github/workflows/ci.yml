@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.12'
+      - uses: julia-actions/cache@v2
+
+      # 1) Native kernels: answers, convergence orders, Float32/Float64.
+      - name: Native tests
+        run: julia --project=. -e 'using Pkg; Pkg.test()'
+
+      # 2) The .wasm modules and manifests are committed in web/static/wasm so the site builds
+      #    without Julia. Fail if they are stale: manifests and native expected values must equal
+      #    what the current source generates, and (next step) the committed .wasm must reproduce
+      #    those values.
+      - name: Committed WASM artifacts are up to date
+        run: |
+          julia --project=wasm -e 'using Pkg; Pkg.instantiate()'
+          julia --project=wasm wasm/build.jl --check
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Committed WASM matches native
+        run: node wasm/check_parity.mjs
+
+      # 3) Web: type check, connector tests, then open the built site in Chrome.
+      - uses: oven-sh/setup-bun@v2
+      - name: Install web dependencies
+        working-directory: web
+        run: bun install --frozen-lockfile
+      - name: Type check
+        working-directory: web
+        run: bun run check
+      - name: Connector tests
+        working-directory: web
+        run: bun run test
+      - name: End-to-end tests
+        working-directory: web
+        run: bun run test:e2e
+
+      # 4) The deployable static site (base path '/'), .wasm included.
+      - name: Build site
+        working-directory: web
+        run: bun run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: web/build
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-screenshots
+          path: web/test-results/screenshots
+          if-no-files-found: ignore

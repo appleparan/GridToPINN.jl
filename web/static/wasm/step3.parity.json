@@ -1,0 +1,2218 @@
+[
+  {
+    "name": "moving wall (honey), Euler inside its stability limit",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.0005,
+          200,
+          1
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9204597508085525,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6895757564448952,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.368737575046555,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.0006173827867734794,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "moving wall (honey), Euler inside its stability limit",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.0005,
+          200,
+          1
+        ],
+        "expected": 0.10000011324882507,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000011324882507,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9204597473144531,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6895756721496582,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36873751878738403,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.0006171166896820068,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "moving wall (honey), RK4",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          100,
+          2
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9203114674730374,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6890531693704274,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36808286422625236,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.0002713100535842172,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "moving wall (honey), RK4",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          100,
+          2
+        ],
+        "expected": 0.10000002384185791,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000002384185791,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.920311450958252,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6890531778335571,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36808285117149353,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.00027127936482429504,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "moving wall (honey), Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          10,
+          3
+        ],
+        "expected": 0.09999999999999999,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.09999999999999999,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9092074923681048,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6882454956492061,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36842073492802285,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.011136718837555737,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "moving wall (honey), Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          10,
+          3
+        ],
+        "expected": 0.09999998658895493,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.09999998658895493,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9092074632644653,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6882454752922058,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36842080950737,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.01113671064376831,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "moving wall (honey), out-of-range method falls back to RK4",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          100,
+          99
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000000000000007,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.9203114674730374,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6890531693704274,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36808286422625236,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.0002713100535842172,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "moving wall (honey), out-of-range method falls back to RK4",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          100,
+          99
+        ],
+        "expected": 0.10000002384185791,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.10000002384185791,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.920311450958252,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.6890531778335571,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.36808285117149353,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.00027127936482429504,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "moving wall (water), Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          1.0e-6
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.1,
+          20,
+          3
+        ],
+        "expected": 2.0000000000000004,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 2.0000000000000004,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.3263646000011292,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.001225725254787141,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 2.4027089764964354e-9,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.022963657595348227,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "moving wall (water), Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          1.0e-6
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.1,
+          20,
+          3
+        ],
+        "expected": 2.000000238418579,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 2.000000238418579,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 0.32636457681655884,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.0012257256312295794,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 2.402708476623161e-9,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.0,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.02296367660164833,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "sin mode, Euler",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          50,
+          1
+        ],
+        "expected": 0.05000000000000004,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.05000000000000004,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5595264260216309,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.9519232131792562,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.9519232131792562,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 7.340580998282942e-5,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "sin mode, Euler",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          50,
+          1
+        ],
+        "expected": 0.04999997094273567,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.04999997094273567,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5595263838768005,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.951923131942749,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.951923131942749,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 7.331371307373047e-5,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "sin mode, RK4",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          50,
+          2
+        ],
+        "expected": 0.05000000000000004,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.05000000000000004,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5595400049133288,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.9519463149696551,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.9519463149696551,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 9.650760038171224e-5,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "sin mode, RK4",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.001,
+          50,
+          2
+        ],
+        "expected": 0.04999997094273567,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.04999997094273567,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5595400333404541,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.9519463181495667,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.9519463181495667,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 9.649991989135742e-5,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "sin mode, Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          10,
+          3
+        ],
+        "expected": 0.09999999999999999,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.09999999999999999,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5326516216358477,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.9062010650291186,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.9062010650291186,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.00018300924019554188,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "sin mode, Crank-Nicolson",
+    "ops": [
+      {
+        "args": [
+          20,
+          0.1
+        ],
+        "bind": "sim",
+        "fn": "sin_mode"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          10,
+          3
+        ],
+        "expected": 0.09999998658895493,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.09999998658895493,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 0.5326516032218933,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          11
+        ],
+        "expected": 0.9062008857727051,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 0.9062008857727051,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 0.00018280744552612305,
+        "fn": "sin_mode_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: Euler past its stability limit blows up",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          400,
+          1
+        ],
+        "expected": 3.9999999999999587,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 3.9999999999999587,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": "NaN",
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": "NaN",
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: Euler past its stability limit blows up",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          400,
+          1
+        ],
+        "expected": 3.9999966621398926,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 3.9999966621398926,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": "NaN",
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": "NaN",
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: RK4 past its stability limit blows up",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          400,
+          2
+        ],
+        "expected": 3.9999999999999587,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 3.9999999999999587,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": "NaN",
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": "NaN",
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: RK4 past its stability limit blows up",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          0.01,
+          400,
+          2
+        ],
+        "expected": 3.9999966621398926,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 3.9999966621398926,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": "NaN",
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": "NaN",
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: Crank-Nicolson with a huge step stays bounded but rings",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0,
+          5,
+          3
+        ],
+        "expected": 5.0,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 5.0,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 1.7733532845582687,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 1.280648800991528,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.8553768536865352,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.7733532845582687,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.7846367618558778,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: Crank-Nicolson with a huge step stays bounded but rings",
+    "ops": [
+      {
+        "args": [
+          50,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "bind": "sim",
+        "fn": "moving_wall"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0,
+          5,
+          3
+        ],
+        "expected": 5.0,
+        "fn": "advance"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "expected": 5.0,
+        "fn": "time"
+      },
+      {
+        "args": [
+          "$sim"
+        ],
+        "bind": "u",
+        "fn": "field"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$u",
+          1
+        ],
+        "expected": 1.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          2
+        ],
+        "expected": 1.7733538150787354,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          5
+        ],
+        "expected": 1.2806499004364014,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u",
+          10
+        ],
+        "expected": 0.8553785681724548,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$u"
+        ],
+        "expected": 1.7733538150787354,
+        "fn": "max_abs"
+      },
+      {
+        "args": [
+          "$sim",
+          1.0
+        ],
+        "expected": 0.7846372723579407,
+        "fn": "moving_wall_error"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "exact solutions",
+    "ops": [
+      {
+        "args": [
+          0.3
+        ],
+        "expected": 0.6713733172709883,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          -0.7
+        ],
+        "expected": 1.6778011818561032,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          0.0
+        ],
+        "expected": 0.999999999,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          0.002,
+          1.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 0.15729931025241004,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.01,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "expected": 0.6170750745520118,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.0,
+          0.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 1.0,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.05,
+          0.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 0.0,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          1.0e-6,
+          10.0
+        ],
+        "expected": 0.006324555320336759,
+        "fn": "diffusion_depth"
+      },
+      {
+        "args": [
+          0.002,
+          10.0
+        ],
+        "expected": 0.282842712474619,
+        "fn": "diffusion_depth"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "exact solutions",
+    "ops": [
+      {
+        "args": [
+          0.3
+        ],
+        "expected": 0.6713733077049255,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          -0.7
+        ],
+        "expected": 1.6778011322021484,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          0.0
+        ],
+        "expected": 1.0,
+        "fn": "erfc"
+      },
+      {
+        "args": [
+          0.002,
+          1.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 0.15729930996894836,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.01,
+          0.1,
+          1.0,
+          0.002
+        ],
+        "expected": 0.6170752048492432,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.0,
+          0.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 1.0,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          0.05,
+          0.0,
+          1.0,
+          1.0e-6
+        ],
+        "expected": 0.0,
+        "fn": "stokes_first_solution"
+      },
+      {
+        "args": [
+          1.0e-6,
+          10.0
+        ],
+        "expected": 0.00632455525919795,
+        "fn": "diffusion_depth"
+      },
+      {
+        "args": [
+          0.002,
+          10.0
+        ],
+        "expected": 0.2828427255153656,
+        "fn": "diffusion_depth"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f32"
+  }
+]

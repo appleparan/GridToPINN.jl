@@ -40,7 +40,7 @@ wasm/           WASM 빌드 환경 (WasmTarget.jl). 커널을 컴파일만 한�
 web/            SvelteKit 정적 사이트
   src/lib/gridtopinn/   프레임워크에 의존하지 않는 TS 연결 모듈과 Worker
   src/routes/verify/    검증 페이지
-  static/wasm/          빌드 산출물 (git에 넣지 않음)
+  static/wasm/          빌드 산출물 (커밋함. 커널을 고치면 다시 빌드해 함께 커밋)
 docs/           아키텍처, 호출 규약, 변경 기록
 ```
 
@@ -75,6 +75,26 @@ bun run test        # 연결 모듈 단위 테스트 (Node에서 실제 .wasm �
 bun run test:e2e    # 사이트를 빌드해 Chrome으로 검증 페이지를 연다
 bun run dev         # 개발 서버. /verify 에서 눈으로 확인
 ```
+
+## 배포
+
+`.wasm`과 목록 파일은 `web/static/wasm/`에 커밋되어 있습니다. 그래서 웹 빌드와 배포에는 Julia가 필요 없고,
+`web/`을 루트로 `bun install && bun run build`만 하면 됩니다. 사이트에 올릴 것은 `web/build/` 폴더 하나이며
+그 안에 `.wasm`이 들어 있습니다.
+
+커널(`src/`)이나 선언(`wasm/entries/`)을 고쳤으면 산출물을 다시 만들어 함께 커밋합니다.
+
+```bash
+cd web
+bun run build:wasm  # WASM 빌드와 네이티브 일치 검사 → web/static/wasm/ (커밋할 것)
+bun run build       # 사이트 빌드 → web/build/
+```
+
+다시 빌드하는 것을 잊으면 CI의 `julia --project=wasm wasm/build.jl --check`가 실패합니다.
+
+하위 경로에 올릴 때는 `BASE_PATH=/경로 bun run build`로 빌드합니다.
+CI(`.github/workflows/ci.yml`)는 push와 PR마다 네이티브 테스트, 산출물 검사, 일치 검사, 웹 검사, e2e를
+돌리고, 커밋된 산출물이 소스와 맞는지 확인하고, 빌드한 사이트를 `site` 아티팩트로 올립니다. 호스팅으로 내보내는 단계는 아직 없습니다.
 
 ## 새 단계를 추가하는 방법
 
