@@ -1,53 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-
-const BASE = process.env.BASE_PATH ?? '';
-const PREFIX = BASE ? 'sub-' : '';
-const SHOTS = 'test-results/screenshots';
-
-/** 콘솔 오류, 페이지 예외, 실패/4xx/5xx 요청을 모아 둔다. 시험 끝에서 비어 있어야 한다. */
-function watch(page: Page) {
-	const problems: string[] = [];
-	const wasmUrls: string[] = [];
-	page.on('console', (m) => m.type() === 'error' && problems.push(`console.error: ${m.text()}`));
-	page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
-	page.on('requestfailed', (r) => problems.push(`requestfailed: ${r.url()} ${r.failure()?.errorText}`));
-	page.on('response', (r) => {
-		if (r.status() >= 400) problems.push(`HTTP ${r.status()}: ${r.url()}`);
-		if (r.url().endsWith('.wasm')) wasmUrls.push(new URL(r.url()).pathname);
-	});
-	return { problems, wasmUrls };
-}
-
-/** canvas에서 흰 배경이 아닌 픽셀 수와, 색이 있는(회색이 아닌) 픽셀 수 */
-const pixels = (page: Page, testid: string) =>
-	page.getByTestId(testid).evaluate((c: HTMLCanvasElement) => {
-		const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
-		let nonBg = 0, colored = 0;
-		for (let i = 0; i < d.length; i += 4) {
-			if (d[i] !== 255 || d[i + 1] !== 255 || d[i + 2] !== 255) nonBg++;
-			if (d[i] !== d[i + 1] || d[i + 1] !== d[i + 2]) colored++;
-		}
-		return { nonBg, colored };
-	});
-
-test('home page renders the step list', async ({ page }) => {
-	const w = watch(page);
-	await page.goto(`${BASE}/`);
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('GridToPINN');
-	const rows = page.getByTestId('step-row');
-	await expect(rows).toHaveCount(3);
-	// 제목, 매니페스트에서 읽은 질문, wasm 크기
-	const expected = [['미분과 Newton법', 'DRS를 열면'], ['시간 전진', '도달하는 데'], ['확산', '물과 꿀']];
-	for (const [i, [title, question]] of expected.entries()) {
-		await expect(rows.nth(i)).toContainText(title);
-		await expect(rows.nth(i)).toContainText(question);
-		await expect(rows.nth(i)).toContainText(/\d+\.\d KiB/);
-	}
-	await expect(page.getByTestId('verify-link')).toHaveAttribute('href', `${BASE}/verify`);
-	await page.screenshot({ path: `${SHOTS}/${PREFIX}home.png`, fullPage: true });
-	await expect(page.getByTestId('error')).toHaveCount(0);
-	expect(w.problems).toEqual([]);
-});
+import { expect, test } from '@playwright/test';
+import { BASE, PREFIX, SHOTS, pixels, watch } from './helpers';
 
 test('verify page: parity, alternatives, plots, worker frames', async ({ page }) => {
 	const w = watch(page);

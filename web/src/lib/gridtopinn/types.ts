@@ -51,6 +51,7 @@ export interface ParamSpec {
 	/** 표시 단위 (없으면 unit 그대로 보인다) */
 	display?: DisplayUnit | null;
 	source?: SourceRange;
+	presets?: { label: string; value: number }[];
 }
 export interface AltOption {
 	value: number;
