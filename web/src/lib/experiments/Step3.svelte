@@ -99,6 +99,7 @@
 	function restart() {
 		clearTimeout(timer);
 		late = undefined;
+		shown = undefined; // the previous run's picture must not sit next to the reset counter
 		if (!current) return;
 		const v = current.values;
 		const ctx: Ctx = { N: v.N, L: v.L, U: v.U, nu: v['ν'], dt: v['Δt'], precision: current.precision };
@@ -153,7 +154,11 @@
 		];
 	});
 	// Fixed axes: the picture changes, the frame around it does not.
-	const yRange = $derived({ min: -Y_MARGIN * values.U, max: (1 + Y_MARGIN) * values.U });
+	// Tied to the frame on screen, so the window and the profile always belong to the same run.
+	const yRange = $derived.by(() => {
+		const U = shown?.ctx.U ?? values.U;
+		return { min: -Y_MARGIN * U, max: (1 + Y_MARGIN) * U };
+	});
 	const markers = $derived(shown && shown.depth > 0 && shown.depth <= shown.ctx.L ? [{ x: shown.depth, label: '확산 깊이' }] : []);
 </script>
 
@@ -188,10 +193,10 @@
 	{/snippet}
 	{#snippet readouts()}
 		<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
-			<Readout key="time" label="시각" value={shown?.t ?? 0} unit="s" />
-			<Readout key="max-error" label="해석해와의 최대 차이" value={shown?.err ?? 0} unit="m/s" />
+			<Readout key="time" label="시각" value={shown?.t} unit="s" />
+			<Readout key="max-error" label="해석해와의 최대 차이" value={shown?.err} unit="m/s" />
 			<Readout key="stability" label="νΔt/Δy²" value={stability} hint="명시적 방법은 0.5 부근을 넘으면 발산" />
-			<Readout key="depth" label="확산 깊이" value={shown?.depth ?? 0} unit="m" />
+			<Readout key="depth" label="확산 깊이" value={shown?.depth} unit="m" />
 		</div>
 	{/snippet}
 </ExperimentFrame>

@@ -109,3 +109,42 @@ test('reduced motion: step 2 loads already finished', async ({ page }) => {
 	await expect(playStatus(page)).toHaveAttribute('data-status', 'done');
 	expect(await num(page, 'play-time')).toBe(80);
 });
+
+test('the playback speed readout only shows steps the integrator computed', async ({ page }) => {
+	await page.goto(`${BASE}/step/2`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await page.getByTestId('alt-option-euler').click();
+	await set(page, 'Δt', '10'); // 80 s / 10 s = 8 steps = 9 samples
+	await expect(page.getByTestId('readout-steps')).toHaveAttribute('data-value', '8', { timeout: 30_000 });
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'playing');
+	const polled: string[] = await page.evaluate(async () => {
+		const out: string[] = [];
+		const el = document.querySelector('[data-testid="readout-play-speed"]')!;
+		for (let i = 0; i < 80; i++) {
+			out.push(el.getAttribute('data-value') ?? '');
+			await new Promise((r) => setTimeout(r, 30));
+		}
+		return out;
+	});
+	const distinct = new Set(polled).size;
+	const changes = polled.filter((v, i) => i > 0 && v !== polled[i - 1]).length;
+	// an interpolated readout would change at nearly every poll and take dozens of values
+	expect(distinct).toBeLessThanOrEqual(9);
+	expect(changes).toBeLessThanOrEqual(8);
+	expect(polled.length - changes).toBeGreaterThan(polled.length / 2); // values hold across consecutive polls
+});
+
+test('hovering the plot reads the values under the cursor', async ({ page }) => {
+	await page.goto(`${BASE}/step/2`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'done', { timeout: 15_000 });
+	const cursor = page.getByTestId('plot-cursor');
+	await expect(cursor).not.toBeVisible();
+	await page.getByTestId('plot').locator('.u-over').hover(); // uPlot's interaction overlay sits above the canvas
+	await expect(cursor).toBeVisible();
+	await expect(cursor).toContainText(/\d/);
+	await expect(cursor).toContainText('km/h');
+	await page.screenshot({ path: `${SHOTS}/${PREFIX}step2-hover.png`, fullPage: true });
+	await page.mouse.move(2, 2);
+	await expect(cursor).not.toBeVisible();
+});

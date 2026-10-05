@@ -10,6 +10,7 @@
 	import ExperimentFrame from '$lib/ui/ExperimentFrame.svelte';
 	import LinePlot from '$lib/ui/plot/LinePlot.svelte';
 	import type { PlotSeries } from '$lib/ui/plot/types';
+	import { formatValue } from '$lib/ui/format';
 	import Readout from '$lib/ui/Readout.svelte';
 	import Verdict from '$lib/ui/Verdict.svelte';
 	import PlaybackControls from '$lib/ui/PlaybackControls.svelte';
@@ -182,14 +183,16 @@
 
 	const head = $derived.by(() => {
 		const sel = display?.series[0];
-		return sel ? revealUpTo(sel.x, sel.y, tNow) : { x: [], y: [] };
+		return sel ? revealUpTo(sel.x, sel.y, tNow) : { x: [], y: [], last: -1 };
 	});
 	const series = $derived(
 		fullSeries.map((s): PlotSeries =>
 			s.role === 'primary' ? { ...s, x: head.x, y: head.y, head: true } : s
 		)
 	);
-	const playSpeed = $derived(head.y.length ? head.y[head.y.length - 1] : 0);
+	// The readouts show the last step the integrator really computed, not the interpolated head point.
+	const lastSample = $derived(head.last >= 0 ? { t: display!.series[0].x[head.last], v: display!.series[0].y[head.last] } : undefined);
+	const playSpeed = $derived(lastSample?.v);
 
 	autoPlayback(playback, () => [{ ...values }, method, precision], RESTART_MS);
 
@@ -246,7 +249,7 @@
 		{#if display}
 			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
 				<Readout key="play-time" label="재생 시각" value={tNow} unit="s" />
-				<Readout key="play-speed" label="재생 위치의 속도" value={playSpeed} unit={kmh.unit} />
+				<Readout key="play-speed" label="직전 계산 걸음의 속도" value={playSpeed} unit={kmh.unit} hint={lastSample ? `재생 시각 이전에 적분기가 마지막으로 계산한 걸음(t = ${formatValue(lastSample.t)} s)의 값` : '아직 계산된 걸음 없음'} />
 				<Readout key="v-end" label="t_end의 속도" value={display.vEnd} unit={kmh.unit} />
 				<Readout key="target" label="목표 속도" value={display.target} unit={kmh.unit} />
 				<Readout key="rel-diff" label="목표와의 상대 차이" value={display.relDiff} />

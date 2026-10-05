@@ -127,6 +127,7 @@ export function createRunner(
 				}
 				return;
 			}
+			if ((status as RunStatus) === 'paused') return; // pause() arrived while the sim was being created; resume() starts the loop
 			status = 'running';
 			void loop(tok, loopId);
 		},

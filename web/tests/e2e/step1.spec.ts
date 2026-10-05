@@ -30,6 +30,17 @@ test('typing a parameter recomputes; keyboard moves the slider', async ({ page }
 	await expect.poll(async () => Number(await page.getByTestId('param-P').getAttribute('data-value'))).toBeGreaterThan(p0);
 });
 
+test('a typed value is committed once, without 4-digit rounding', async ({ page }) => {
+	await page.goto(`${BASE}/step/1`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	const input = page.getByTestId('param-input-P');
+	await input.fill('123456');
+	await input.press('Enter');
+	await expect(page.getByTestId('param-P')).toHaveAttribute('data-value', '123456');
+	await page.waitForTimeout(300);
+	await expect(page.getByTestId('param-P')).toHaveAttribute('data-value', '123456');
+});
+
 test('bad input is clamped or ignored, never sent as NaN', async ({ page }) => {
 	const w = watch(page);
 	await page.goto(`${BASE}/step/1`);

@@ -20,6 +20,8 @@
 		text = fmt(value);
 	});
 
+	// Enter fires `change` too, so commit only from `change`; a second commit would re-parse the
+	// 4-significant-digit display text and round the typed value.
 	function commit() {
 		const parsed = parseInput(text, scale, win);
 		if (parsed !== undefined) value = parsed;
@@ -46,7 +48,6 @@
 			class="num h-8 w-28 text-right text-sm md:text-sm"
 			bind:value={text}
 			onchange={commit}
-			onkeydown={(e) => e.key === 'Enter' && commit()}
 			aria-label="{spec.name} 값 [{unit}]"
 			data-testid="param-input-{spec.name}"
 		/>

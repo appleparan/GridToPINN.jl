@@ -139,13 +139,14 @@
 		if (outcome.ok) shown = outcome.r;
 	});
 	const display = $derived(outcome.ok ? outcome.r : shown);
-	// Playback: one Newton iterate per 500 ms (at least 1.5 s in all).
+	// Playback: one Newton iterate per 500 ms (1.5 s at least, 6 s at most in all).
 	const ITERATE_MS = 500;
 	const MIN_PLAY_MS = 1500;
+	const MAX_PLAY_MS = 6000; // 50 iterations would otherwise take ~25 s
 	const RESTART_MS = 200;
 	const playback = createPlayback(MIN_PLAY_MS);
 	const iterations = $derived(display?.iterations ?? 1);
-	$effect(() => playback.setDuration(Math.max(MIN_PLAY_MS, ITERATE_MS * (iterations - 1))));
+	$effect(() => playback.setDuration(Math.min(MAX_PLAY_MS, Math.max(MIN_PLAY_MS, ITERATE_MS * (iterations - 1)))));
 	const shownIterates = $derived(Math.min(iterations, 1 + Math.floor(playback.progress * (iterations - 1))));
 	const series = $derived(
 		(display?.series ?? []).map((s): PlotSeries => {

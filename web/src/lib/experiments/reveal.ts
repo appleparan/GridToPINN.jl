@@ -1,8 +1,16 @@
 // Display-only helpers for playback: show a prefix of kernel-computed samples. The only arithmetic is
 // the linear interpolation of one head point between two samples the kernel already produced.
 
-/** Samples with x <= xCut, plus one interpolated point at xCut when it falls between two samples. x ascending. */
-export function revealUpTo(x: ArrayLike<number>, y: ArrayLike<number>, xCut: number): { x: number[]; y: number[] } {
+/**
+ * Samples with x <= xCut, plus one interpolated point at xCut when it falls between two samples. x ascending.
+ * `last` is the index of the last real (kernel-computed) sample at or before xCut, -1 when there is none;
+ * read readouts from it, never from the interpolated head point.
+ */
+export function revealUpTo(
+	x: ArrayLike<number>,
+	y: ArrayLike<number>,
+	xCut: number
+): { x: number[]; y: number[]; last: number } {
 	const n = Math.min(x.length, y.length);
 	// binary search: number of samples with x <= xCut
 	let lo = 0;
@@ -22,7 +30,7 @@ export function revealUpTo(x: ArrayLike<number>, y: ArrayLike<number>, xCut: num
 			outY.push(y0 + ((y1 - y0) * (xCut - x0)) / (x1 - x0));
 		}
 	}
-	return { x: outX, y: outY };
+	return { x: outX, y: outY, last: k - 1 };
 }
 
 /** The first `count` samples (count clamped to [0, length]). */

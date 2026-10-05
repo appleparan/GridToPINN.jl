@@ -173,6 +173,30 @@ describe('paced runner', () => {
 		expect(runner.status).toBe('running');
 	});
 
+	it('a pause() issued while the sim is being created is honored; resume() then starts the loop', async () => {
+		const { f, s, runner, p } = setup();
+		let release!: () => void;
+		const gate = new Promise<void>((r) => (release = r));
+		const create = f.client.call;
+		f.client.call = async (fn: string) => {
+			await gate;
+			return create(fn);
+		};
+		const started = runner.start(p);
+		runner.pause();
+		release();
+		await started;
+		expect(runner.status).toBe('paused');
+		await tick();
+		expect(s.queue.length).toBe(0); // no loop running
+		runner.resume();
+		expect(runner.status).toBe('running');
+		await tick();
+		for (let i = 0; i < 3; i++) await step(f, s);
+		expect(runner.status).toBe('done');
+		expect(f.calls.filter((c) => c === 'make').length).toBe(1);
+	});
+
 	it('dispose releases the sim and ignores later frames', async () => {
 		const { f, s, seen, runner, p } = setup();
 		await runner.start(p);

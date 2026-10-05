@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import type uPlotType from 'uplot';
+	import { formatValue } from '../format';
 	import { decimate } from './decimate';
 	import type { PlotMarker, PlotSeries, SeriesRole } from './types';
 
@@ -59,6 +60,52 @@
 		if (!s) return 0;
 		return finiteCount(s.y);
 	});
+
+	// Hover readout: the sample under the cursor (of the drawn, possibly thinned data), per visible curve.
+	// Plain state outside the build effect, so moving the mouse never rebuilds the uPlot instance.
+	type CursorRow = { label: string; role: SeriesRole; y: string };
+	let cursor = $state.raw<{ x: string; rows: CursorRow[] } | undefined>();
+	const splitLabel = (l: string) => ({
+		name: l.replace(/\s*\[[^\]]*\]\s*$/, ''),
+		unit: /\[([^\]]*)\]\s*$/.exec(l)?.[1] ?? ''
+	});
+	const NEAREST_SCAN = 50; // joined tables hold nulls where only another series has a sample
+
+	function readCursor(u: uPlotType) {
+		const idx = u.cursor.idx;
+		const xs = u.data[0];
+		if (idx == null || idx < 0 || idx >= xs.length) {
+			cursor = undefined;
+			return;
+		}
+		const x = xs[idx] as number;
+		const span = (xs[xs.length - 1] as number) - (xs[0] as number);
+		const rows: CursorRow[] = [];
+		series.forEach((s, i) => {
+			if (s.role === 'muted' || s.role === 'ghost') return;
+			const ys = u.data[i + 1];
+			let best: number | undefined;
+			if (s.role === 'reference' && s.x.length <= 2) {
+				// a two-point constant line has samples at its ends only; any of them is its value
+				const k = ys.findIndex((v) => v != null);
+				rows.push({ label: s.label, role: s.role, y: k < 0 ? '–' : formatValue(ys[k] as number) });
+				return;
+			}
+			for (let d = 0; d <= NEAREST_SCAN && best === undefined; d++) {
+				for (const k of d === 0 ? [idx] : [idx - d, idx + d]) {
+					if (k < 0 || k >= ys.length || ys[k] == null) continue;
+					if (Math.abs((xs[k] as number) - x) > 0.03 * span) continue;
+					best = k;
+					break;
+				}
+			}
+			rows.push({ label: s.label, role: s.role, y: best === undefined ? '–' : formatValue(ys[best] as number) });
+		});
+		const text = formatValue(x);
+		const prev = cursor;
+		if (prev && prev.x === text && prev.rows.length === rows.length && prev.rows.every((r, i) => r.y === rows[i].y && r.label === rows[i].label)) return;
+		cursor = { x: text, rows };
+	}
 
 	// Legend follows `order` (default: series order), so the draw order can differ from it.
 	const legendSeries = $derived(
@@ -174,6 +221,7 @@
 			cursor: { drag: { x: false, y: false } },
 			legend: { show: false },
 			hooks: {
+				setCursor: [readCursor],
 				draw: [
 					(u: uPlotType) => {
 						// playback head: a filled dot at the last finite point of the series that asks for it
@@ -300,6 +348,21 @@
 				</li>
 			{/each}
 		</ul>
+		<div
+			class="num text-muted-foreground mt-1.5 flex min-h-5 flex-wrap gap-x-4 gap-y-0.5 text-xs"
+			class:invisible={!cursor}
+			data-testid="plot-cursor"
+			aria-hidden="true"
+		>
+			{#if cursor}
+				<span>{splitLabel(xLabel).name} = <span class="text-foreground">{cursor.x}</span> {splitLabel(xLabel).unit}</span>
+				{#each cursor.rows as r (r.label)}
+					<span>{r.label} <span class="text-foreground">{r.y}</span> {splitLabel(yLabel).unit}</span>
+				{/each}
+			{:else}
+				&nbsp;
+			{/if}
+		</div>
 	{/if}
 </div>
 
