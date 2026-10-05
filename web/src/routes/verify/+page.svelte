@@ -19,8 +19,10 @@
 </script>
 
 <svelte:head><title>검증 — GridToPINN</title></svelte:head>
-<header class="mx-auto flex max-w-5xl items-center justify-between p-4">
-	<nav><a href="{base}/">처음</a> · <a href="{base}/verify">검증</a></nav>
+<header class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
+	<a href="{base}/" class="text-base font-semibold tracking-tight">
+		Grid<span class="text-primary">To</span>PINN
+	</a>
 	<ThemeToggle />
 </header>
 <div class="verify-page mx-auto max-w-5xl p-4">
