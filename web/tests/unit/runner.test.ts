@@ -153,6 +153,26 @@ describe('paced runner', () => {
 		expect(runner.error).toBe('');
 	});
 
+	it('start() flips status to running at once and clears a stale diverged/error state', async () => {
+		const { f, s, runner, p } = setup({ diverged: () => true });
+		await runner.start(p);
+		await step(f, s);
+		expect(runner.status).toBe('diverged');
+		let release!: () => void;
+		const gate = new Promise<void>((r) => (release = r));
+		const create = f.client.call;
+		f.client.call = async (fn: string) => {
+			await gate;
+			return create(fn);
+		};
+		const started = runner.start(p);
+		expect(runner.status).toBe('running'); // before create resolves
+		expect(runner.error).toBe('');
+		release();
+		await started;
+		expect(runner.status).toBe('running');
+	});
+
 	it('dispose releases the sim and ignores later frames', async () => {
 		const { f, s, seen, runner, p } = setup();
 		await runner.start(p);

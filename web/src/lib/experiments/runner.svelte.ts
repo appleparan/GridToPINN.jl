@@ -112,6 +112,7 @@ export function createRunner(
 			plan = next;
 			frame = 0;
 			error = '';
+			status = 'running'; // a restart from 'diverged' / 'error' must not keep the old badge while create runs
 			try {
 				const handle = (await client.call(next.create.fn, next.precision, next.create.args as Arg[])) as Handle;
 				if (tok !== token) {

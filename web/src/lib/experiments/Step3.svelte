@@ -42,9 +42,25 @@
 	let message = $state('');
 	let ready = $state(false);
 
+	// A frame that lands after pause() is not drawn, so a paused picture and its readouts stay frozen.
+	// It is kept and drawn when the run leaves 'paused' (resume, or it was the final / diverged frame).
+	let late: { f: Frame; plan: RunPlan } | undefined;
 	function onFrame(f: Frame, plan: RunPlan) {
-		// A frame that lands after pause() is not drawn, so a paused picture and its readouts stay frozen.
-		if (runner.status === 'paused') return;
+		if (runner.status === 'paused') {
+			late = { f, plan };
+			return;
+		}
+		late = undefined;
+		draw(f, plan);
+	}
+	$effect(() => {
+		if (runner.status === 'paused' || !late) return;
+		const { f, plan } = late;
+		late = undefined;
+		draw(f, plan);
+	});
+
+	function draw(f: Frame, plan: RunPlan) {
 		const { N, L, U, nu, precision: p } = (plan as Plan3).ctx;
 		const t = f.scalars[1];
 		const y = Float64Array.from({ length: N + 1 }, (_, i) => (i * L) / N);
@@ -82,6 +98,7 @@
 	let current: { values: Record<string, number>; method: number; precision: Precision } | undefined;
 	function restart() {
 		clearTimeout(timer);
+		late = undefined;
 		if (!current) return;
 		const v = current.values;
 		const ctx: Ctx = { N: v.N, L: v.L, U: v.U, nu: v['ν'], dt: v['Δt'], precision: current.precision };
@@ -170,7 +187,7 @@
 		<div class="mt-3"><RunControls {runner} onreset={restart} frames={FRAMES} /></div>
 	{/snippet}
 	{#snippet readouts()}
-		<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+		<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
 			<Readout key="time" label="시각" value={shown?.t ?? 0} unit="s" />
 			<Readout key="max-error" label="해석해와의 최대 차이" value={shown?.err ?? 0} unit="m/s" />
 			<Readout key="stability" label="νΔt/Δy²" value={stability} hint="명시적 방법은 0.5 부근을 넘으면 발산" />
