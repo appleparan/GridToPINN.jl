@@ -39,7 +39,10 @@ wasm/           WASM 빌드 환경 (WasmTarget.jl). 커널을 컴파일만 한�
   build.jl      모든 단계를 빌드해 web/static/wasm/ 에 쓴다
 web/            SvelteKit 정적 사이트
   src/lib/gridtopinn/   프레임워크에 의존하지 않는 TS 연결 모듈과 Worker
-  src/routes/verify/    검증 페이지
+  src/routes/           홈 카드(/), 단계 화면(/step/N), 시험 페이지(/verify)
+  src/lib/experiments/  단계별 체험 컴포넌트와 registry.ts, 통과 기준(config.ts)
+  src/lib/ui/           공용 부품 (조작, 코드, 그림, 재생 조작)
+  src/lib/verify/       시험 페이지 부품
   static/wasm/          빌드 산출물 (커밋함. 커널을 고치면 다시 빌드해 함께 커밋)
 docs/           아키텍처, 호출 규약, 변경 기록
 ```

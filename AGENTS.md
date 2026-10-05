@@ -10,7 +10,7 @@
 
 **핵심 약속**: "화면에 보이는 Julia 코드가 곧 브라우저에서 도는 코드" — Julia 커널을 JS로 다시 짜서 대체하지 않습니다.
 
-**화면(Svelte 정적 사이트)**은 의뢰자가 직접 만듭니다. 서버는 없고, Julia 코드는 WebAssembly로 컴파일되어 브라우저에서 동작합니다.
+**화면(Svelte 정적 사이트)**도 이 저장소의 `web/`에 있습니다(홈 카드, `/step/N` 체험 화면, `/verify`). 서버는 없고, Julia 코드는 WebAssembly로 컴파일되어 브라우저에서 동작합니다.
 
 ---
 
@@ -97,7 +97,7 @@ Julia 패키지와 웹 프로젝트가 한 저장소에 나란히 있는 구조.
 
 - `src/stepN/*.jl`: 커널. 모듈 `GridToPINN` 하나, 의존 패키지 없음. 테스트는 `test/stepN.jl`.
 - `wasm/`: 빌드 환경. `wasm/entries/stepN.jl`이 내보내기, 조작 값, 대안 지점, 일치 검사 사례를 선언하고 `wasm/build.jl`이 `web/static/wasm/`에 산출물을 씀. 산출물은 커밋함: 커널이나 선언을 고치면 다시 빌드해 함께 커밋하고, `wasm/build.jl --check`로 어긋남을 확인.
-- `web/`: SvelteKit 정적 사이트. 연결 모듈은 `web/src/lib/gridtopinn/`, 검증 페이지는 `/verify`.
+- `web/`: SvelteKit 정적 사이트. 연결 모듈은 `web/src/lib/gridtopinn/`, 체험 화면은 `web/src/lib/experiments/`(단계마다 컴포넌트 하나와 `registry.ts` 한 줄), 공용 부품은 `web/src/lib/ui/`, 시험 페이지는 `/verify`(`web/src/lib/verify/`).
 
 **단위 규칙**: 커널과 WASM 인자는 SI(m/s). 자동차 속도는 화면에서 km/h로 보이도록 선언에 `display = KMH`를 붙임 (목록 파일의 `display.scale = 3.6`).
 
