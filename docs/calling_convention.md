@@ -124,6 +124,36 @@ interface WasmFunction {
 | `dual_add` | `(d1: WasmGCDual, d2: WasmGCDual)` | `WasmGCDual` | **WasmGC struct 입력 필요 — JS에서 직접 호출 불가** (브릿지 필요) |
 | `dual_mul` | `(d1: WasmGCDual, d2: WasmGCDual)` | `WasmGCDual` | 위와 동일 |
 
+### 3.2.1. Step2 함수 (v0.2 추가, 같은 step1.wasm에 포함)
+
+Step2 시간 적분 커널. 적분기는 `f`를 Function 인자로 받는 원본 대신,
+`acceleration`에 특화된 concrete 버전으로 내보낸다 (WasmTarget은 Function 인자 미지원).
+
+| 함수명 | 인자 (WASM 호출 시) | 반환 | 비고 |
+|---|---|---|---|
+| `acceleration` | `(v, P, ρ, A, v_top: number)` | `number` | a(v) = (P/(ρ·A))·(1−(v/v_top)³). v=v_top이면 정확히 0 |
+| `euler_step` | `(y, Δt, P, ρ, A, v_top: number)` | `number` | Euler 1스텝: y + Δt·a(y). Δt/τ_char가 크면 진동·발산 (깨뜨리기) |
+| `rk4_step` | `(y, Δt, P, ρ, A, v_top: number)` | `number` | RK4 1스텝. Δt/τ_char > 0.113(선형화 안정 한계) 초과 시 발산 |
+| `top_speed_target` | `(P, ρ, Cd, A: number, tol: number, maxiter: BigInt)` | `number` | v_top = (2P/(ρ·Cd·A))^(1/3), 내부 Newton (구름저항 0) |
+| `ode_integrate` | `(y0, t0, t_end, Δt, P, ρ, A, v_top: number, method: BigInt)` | `WasmGCVector` | **평탄화 반환**: [t0, y0, t1, y1, …], 길이 = 2·(스텝수+1). method: 1n=euler, 2n=rk4. `vec_len`/`vec_get`으로 읽기 |
+
+Step2 참조값 (네이티브 Julia Float64와 비트 단위 일치, e2e 테스트로 확인):
+
+```
+P=50, ρ=1.225, A=0.55, Cd=0.20
+  v_top        = 9.05365084869835
+  a(0)         = 74.21150278293135   (= 50/(1.225·0.55))
+  a(v_top)     = 0
+  euler 1스텝(Δt=0.1, y=0) = 7.421150278293135
+  rk4   1스텝(Δt=0.1, y=0) = 6.539568953054083
+  ode_integrate(euler, t_end=0.5, Δt=0.1) 최종 y = 4.3770776605041055
+  ode_integrate(rk4,   t_end=0.5, Δt=0.1) 최종 y = 8.82007997835102
+```
+
+주의: 이 시스템은 강한 비선형(cubic 저항)이라 Δt/τ_char ≈ 0.82에서도
+Euler와 RK4가 진동하며 수렴한다. 정확도 비교는 반드시 동일 조건의
+네이티브/작은 Δt 기준해와 비교해서 해야 한다.
+
 ### 3.3. 인자 타입 매핑 (WasmTarget → JS)
 
 | Julia/WasmTarget 타입 | JS 전달 형식 | 비고 |
