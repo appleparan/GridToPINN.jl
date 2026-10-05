@@ -1,5 +1,6 @@
 using Test
 using GridToPINN.Step2TimeIntegration
+using GridToPINN.Step3Diffusion
 
 # ---------------------------------------------------------------------------
 # 1. 가속도 함수 테스트 (물리 모델)
@@ -234,4 +235,368 @@ end
     @test tr_small[end][2] < v_top                      # 작은 Δt: v_top 아래서 수렴
     @test tr_large[end][2] > v_top                     # 큰 Δt: overshooting (1스텝만에 v_top 초과)
     @test abs(tr_large[end][2] - v_top) > abs(tr_small[end][2] - v_top)  # 큰 Δt이 더 큰 오차
+end
+
+# ---------------------------------------------------------------------------
+# 8. Step3: 확산 연산자 (선의 방법, Dirichlet)
+# ---------------------------------------------------------------------------
+@testset "Step3 확산 연산자 (선의 방법, Dirichlet)" begin
+    T = Float64
+    α = T(0.01)
+    N = 10
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u = [sin(T(π) * yi) for yi in y]
+
+    du = Step3Diffusion.diffusion_rhs_dirichlet(u, α, dx)
+
+    # sin(πy)는 이산 라플라시안의 고유벡터: du = λ_h·u, λ_h = −(4α/dx²)·sin²(πdx/2)
+    λ_h = -(T(4) * α / dx^2) * sin(T(π) * dx / T(2))^2
+    for i in 2:N
+        @test du[i] ≈ λ_h * u[i] rtol = T(1e-12)
+    end
+    @test du[1] == T(0)
+    @test du[N + 1] == T(0)
+
+    # 연산자 수렴 차수: |λ_h − λ| = α·π⁴·dx²/12 → 격자 2배 → 오차 1/4
+    λ = -α * T(π)^2
+    e10 = abs(λ_h - λ)
+    dx2 = T(1) / (2N)
+    λ_h2 = -(T(4) * α / dx2^2) * sin(T(π) * dx2 / T(2))^2
+    e20 = abs(λ_h2 - λ)
+    @test e10 / e20 ≈ T(4) rtol = T(0.01)
+end
+
+# ---------------------------------------------------------------------------
+# 9. Step3: 주기 경계 확산 연산자 (5단계 Taylor–Green 재사용용)
+# ---------------------------------------------------------------------------
+@testset "Step3 확산 연산자 (주기 경계)" begin
+    T = Float64
+    α = T(0.01)
+    n = 10
+    dx = T(0.1)
+    # 주기 격자에서도 sin 모드는 고유벡터 (대친 순환 행렬)
+    u = [sin(T(2) * T(π) * T(i) / n) for i in 1:n]
+    du = Step3Diffusion.diffusion_rhs_periodic(u, α, dx)
+    λ_h = -(T(4) * α / dx^2) * sin(T(π) / n)^2
+    for i in 1:n
+        @test du[i] ≈ λ_h * u[i] rtol = T(1e-8) atol = T(1e-14)
+    end
+end
+
+# ---------------------------------------------------------------------------
+# 10. Step3: erfc 근사 (A&S 7.1.26)
+# ---------------------------------------------------------------------------
+@testset "Step3 erfc 근사 (A&S 7.1.26)" begin
+    T = Float64
+    @test Step3Diffusion.erfc_approx(T(0)) ≈ T(1) atol = T(2e-7)
+    @test Step3Diffusion.erfc_approx(T(1)) ≈ T(0.15729920705028513) atol = T(2e-7)
+    @test Step3Diffusion.erfc_approx(T(0.5)) ≈ T(0.4795001221869535) atol = T(2e-7)
+    @test Step3Diffusion.erfc_approx(T(2)) ≈ T(0.004677734981047265) atol = T(2e-7)
+    @test Step3Diffusion.erfc_approx(T(-1)) ≈ T(2) - T(0.15729920705028513) atol = T(2e-7)
+end
+
+# ---------------------------------------------------------------------------
+# 11. Step3 수렴: 공간 2차 (RK4, 매끄러운 sin 모드)
+# ---------------------------------------------------------------------------
+@testset "Step3 수렴: 공간 2차 (RK4)" begin
+    T = Float64
+    α = T(0.01)
+    t_end = T(1.0)
+    Δt = T(1e-3)  # N=100에서도 λ_max·Δt = 0.4 < 2.785 (안정), 시간 오차는 무시 가능
+    errs = Float64[]
+    for N in (25, 50, 100)
+        dx = T(1) / N
+        y = [T(i) * dx for i in 0:N]
+        u0 = [Step3Diffusion.sin_mode_initial(yi) for yi in y]
+        u = Step3Diffusion.diffuse(u0, Δt, α, dx, round(Int, t_end / Δt); method = :rk4)
+        exact = [Step3Diffusion.sin_mode_exact(yi, t_end, α) for yi in y]
+        push!(errs, maximum(abs.(u .- exact)))
+    end
+    # 오차 ∝ dx² → 격자 2배 → 오차 1/4 → 차수 2
+    p1 = log2(errs[1] / errs[2])
+    p2 = log2(errs[2] / errs[3])
+    @test p1 ≈ 2 atol = 0.15
+    @test p2 ≈ 2 atol = 0.15
+end
+
+# ---------------------------------------------------------------------------
+# 12. Step3 수렴: 시간 1차 (Euler, 동일 격자 기준해로 시간 오차만 격리)
+# ---------------------------------------------------------------------------
+@testset "Step3 수렴: 시간 1차 (Euler)" begin
+    T = Float64
+    α = T(0.01)
+    t_end = T(1.0)
+    N = 20
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = [Step3Diffusion.sin_mode_initial(yi) for yi in y]
+
+    # 기준해: 같은 격자 + RK4 + Δt=2e-3 (RK4 안정 한계 0.174의 ~1% → 시간 오차 무시)
+    u_ref = Step3Diffusion.diffuse(u0, T(2e-3), α, dx, 500; method = :rk4)
+
+    errs = Float64[]
+    for Δt in (T(0.1), T(0.05), T(0.025))
+        u = Step3Diffusion.diffuse(u0, Δt, α, dx, round(Int, t_end / Δt); method = :euler)
+        push!(errs, maximum(abs.(u .- u_ref)))
+    end
+    # Euler 오차 ∝ Δt → Δt 절반 → 오차 절반
+    @test errs[1] / errs[2] ≈ 2 rtol = 0.2
+    @test errs[2] / errs[3] ≈ 2 rtol = 0.2
+
+    # 같은 Δt에서 RK4 오차는 Euler보다 훨씬 작다.
+    # (확산은 stiff — RK4의 4차수는 안정 한계 Δt ≤ 0.696·dx²/α에 가려져
+    #  차수 4를 직접 보기 어렵다. 이것이 음해법이 필요한 이유다.)
+    u_rk4 = Step3Diffusion.diffuse(u0, T(0.1), α, dx, 10; method = :rk4)
+    @test maximum(abs.(u_rk4 .- u_ref)) < errs[1] / T(10)
+end
+
+# ---------------------------------------------------------------------------
+# 13. Step3 본 문제: 움직이는 벽 (물 vs 꿀)
+# ---------------------------------------------------------------------------
+@testset "Step3 본 문제: 움직이는 벽 (물 vs 꿀)" begin
+    T = Float64
+    U = T(1.0)
+    t = T(1.0)
+    ν_water = T(1e-6)   # 물 20°C
+    ν_honey = T(2e-3)   # 꿀 대표값 (온도에 따라 수십 배 변함)
+
+    # 질문의 답: 확산 깊이 비교 — 꿀이 √(ν비)배 더 깊이 끌려온다
+    δ_water = Step3Diffusion.diffusion_depth(ν_water, t)
+    δ_honey = Step3Diffusion.diffusion_depth(ν_honey, t)
+    @test δ_water ≈ T(2e-3) rtol = T(1e-12)
+    @test δ_honey ≈ T(0.0894427191) rtol = T(1e-6)
+    @test δ_honey / δ_water ≈ sqrt(ν_honey / ν_water) rtol = T(1e-10)
+
+    # 물: y ∈ [0, 0.02] m, N=200 (δ=2mm를 20셀로). RK4 한계 Δt ≤ 6.96e-3 s
+    L = T(0.02)
+    N = 200
+    dx = L / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = zeros(T, N + 1)
+    u0[1] = U  # 벽(y=0)은 순간적으로 U
+    u_water = Step3Diffusion.diffuse(u0, T(1e-3), ν_water, dx, 1000; method = :rk4)
+    @test u_water[1] == U
+    @test all(diff(u_water) .<= T(1e-12))  # 단조 감소 (최대원리)
+    idx = round(Int, δ_water / dx) + 1
+    @test u_water[idx] ≈ U * Step3Diffusion.erfc_approx(T(1)) atol = T(0.02)
+    exact = [Step3Diffusion.stokes_first_solution(yi, t, U, ν_water) for yi in y]
+    @test maximum(abs.(u_water .- exact)) < T(0.05)
+
+    # 꿀: y ∈ [0, 0.5] m, N=200 (δ=8.9cm를 36셀로). RK4 한계 Δt ≤ 2.17e-3 s
+    L = T(0.5)
+    dx = L / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = zeros(T, N + 1)
+    u0[1] = U
+    u_honey = Step3Diffusion.diffuse(u0, T(5e-4), ν_honey, dx, 2000; method = :rk4)
+    @test u_honey[1] == U
+    idx = round(Int, δ_honey / dx) + 1
+    @test u_honey[idx] ≈ U * Step3Diffusion.erfc_approx(T(1)) atol = T(0.02)
+    exact = [Step3Diffusion.stokes_first_solution(yi, t, U, ν_honey) for yi in y]
+    @test maximum(abs.(u_honey .- exact)) < T(0.05)
+end
+
+# ---------------------------------------------------------------------------
+# 14. Step3 깨뜨리기: 확산 — Δt가 크면 발산, 점성이 크면 한계가 빡빡함
+# ---------------------------------------------------------------------------
+@testset "Step3 깨뜨리기: 확산 발산과 점성별 한계" begin
+    T = Float64
+    α = T(0.01)
+    N = 20
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = [Step3Diffusion.sin_mode_initial(yi) for yi in y]
+
+    # 명시적 Euler 안정 한계: Δt ≤ dx²/(2α)
+    limit = dx^2 / (T(2) * α)
+    @test limit ≈ T(0.125) rtol = T(1e-12)
+
+    # 한계 이하: 안정 (최대원리 — 최대값이 초기 최대를 넘지 않음)
+    u = Step3Diffusion.diffuse(u0, T(0.9) * limit, α, dx, 40; method = :euler)
+    @test maximum(abs.(u)) <= T(1) + T(1e-9)
+
+    # 한계의 4배: Euler 발산 (빠른 모드가 반올림 오차에서 자라 ×7/스텝)
+    u = Step3Diffusion.diffuse(u0, T(4) * limit, α, dx, 30; method = :euler)
+    @test maximum(abs.(u)) > T(1e6)
+
+    # RK4도 발산 (한계 0.696·dx²/α — Euler의 1.39배일 뿐, 근본 해결은 아님)
+    u = Step3Diffusion.diffuse(u0, T(4) * limit, α, dx, 30; method = :rk4)
+    @test maximum(abs.(u)) > T(1e6)
+
+    # 점성이 크면(꿀) 한계 Δt ∝ 1/α — 같은 격자에서 꿀은 물보다 2000배 촘촘해야 함
+    lim_water = dx^2 / (T(2) * T(1e-6))
+    lim_honey = dx^2 / (T(2) * T(2e-3))
+    @test lim_honey / lim_water ≈ T(1e-6) / T(2e-3) rtol = T(1e-12)
+end
+
+# ---------------------------------------------------------------------------
+# 15. Step3 Float32 동작 및 타입 승격 없음
+# ---------------------------------------------------------------------------
+@testset "Step3 Float32 동작 및 타입 승격 없음" begin
+    T = Float32
+    α = T(0.01)
+    N = 10
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u = [Step3Diffusion.sin_mode_initial(yi) for yi in y]
+
+    du = Step3Diffusion.diffusion_rhs_dirichlet(u, α, dx)
+    @test eltype(du) == T
+
+    e = Step3Diffusion.erfc_approx(T(1))
+    @test e isa T
+    @test abs(e - T(0.15729920705028513)) < T(2e-6)
+
+    δ = Step3Diffusion.diffusion_depth(T(1e-6), T(1))
+    @test δ isa T
+    @test δ ≈ T(2e-3) rtol = T(1e-5)
+
+    sol = Step3Diffusion.stokes_first_solution(T(5e-4), T(1), T(1), T(1e-6))
+    @test sol isa T
+
+    # 확산 스텝 (2단계 적분기 재사용, Float32 경로)
+    u0 = zeros(T, N + 1)
+    u0[2] = T(1)   # 벽 옆 한 점에 섭동 (벽 u[1]은 고정 0)
+    u = Step3Diffusion.diffuse(u0, T(1e-3), α, dx, 100; method = :rk4)
+    @test eltype(u) == T
+    @test u[1] == T(0)
+    @test maximum(abs.(u)) <= T(1) + T(1e-4)
+end
+
+# ---------------------------------------------------------------------------
+# 16. Step3 음해법: Crank–Nicolson (무조건 안정, 시간 2차)
+# ---------------------------------------------------------------------------
+@testset "Step3 음해법: Crank–Nicolson" begin
+    T = Float64
+    α = T(0.01)
+    N = 20
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = [Step3Diffusion.sin_mode_initial(yi) for yi in y]
+    t_end = T(1.0)
+
+    # 기준해: 같은 격자 + RK4 Δt=2e-3 (시간 오차 무시 → CN의 시간 오차만 격리)
+    u_ref = Step3Diffusion.diffuse(u0, T(2e-3), α, dx, 500; method = :rk4)
+
+    # 시간 2차: Δt 절반 → 오차 1/4 (Euler는 1/2, CN은 1/4)
+    errs = Float64[]
+    for Δt in (T(0.2), T(0.1), T(0.05))
+        u = Step3Diffusion.diffuse(u0, Δt, α, dx, round(Int, t_end / Δt); method = :cn)
+        push!(errs, maximum(abs.(u .- u_ref)))
+    end
+    @test errs[1] / errs[2] ≈ 4 rtol = 0.02
+    @test errs[2] / errs[3] ≈ 4 rtol = 0.02
+
+    # 무조건 안정: 명시적 Euler 한계(Δt=0.125)의 8배에서도 발산하지 않음
+    u = Step3Diffusion.diffuse(u0, T(1.0), α, dx, 20; method = :cn)
+    @test maximum(abs.(u)) <= T(1) + T(1e-9)
+
+    # 큰 Δt에서도 합리적 정확도 (시간 오차 O(Δt²))
+    exact = [Step3Diffusion.sin_mode_exact(yi, t_end, α) for yi in y]
+    u2 = Step3Diffusion.diffuse(u0, T(0.5), α, dx, 2; method = :cn)
+    @test maximum(abs.(u2 .- exact)) < T(0.001)
+
+    # Float32: 타입 승격 없음
+    T32 = Float32
+    dx32 = T32(1) / N
+    y32 = [T32(i) * dx32 for i in 0:N]
+    u032 = [Step3Diffusion.sin_mode_initial(yi) for yi in y32]
+    u32 = Step3Diffusion.diffuse(u032, T32(0.1), T32(α), dx32, 10; method = :cn)
+    @test eltype(u32) == T32
+    @test maximum(abs.(u32)) <= T32(1) + T32(1e-6)
+end
+
+# ---------------------------------------------------------------------------
+# 17. Step3 CN 깨뜨리기: 발산은 안 하지만 최대원리는 깨진다 (음수 링)
+# ---------------------------------------------------------------------------
+@testset "Step3 CN 깨뜨리기: 발산 없음, 링 가능" begin
+    T = Float64
+    α = T(0.01)
+    N = 20
+    dx = T(1) / N
+    limit = dx^2 / (T(2) * α)  # 명시적 Euler 안정 한계 0.125
+
+    # 고주파 모드를 담은 초기조건: 한 점 스파이크
+    u0 = zeros(T, N + 1)
+    u0[2] = T(1)
+
+    # Euler는 한계의 8배(Δt=1.0)에서 10스텝 만에 발산
+    uE = Step3Diffusion.diffuse(u0, T(8) * limit, α, dx, 10; method = :euler)
+    @test maximum(abs.(uE)) > T(1e6)
+
+    # RK4도 발산 (안정 한계가 Euler의 1.39배일 뿐)
+    uR = Step3Diffusion.diffuse(u0, T(8) * limit, α, dx, 10; method = :rk4)
+    @test maximum(abs.(uR)) > T(1e6)
+
+    # CN은 같은 Δt에서 발산하지 않음 (모든 모드 앰플리팩터 |g| ≤ 1)
+    uC = Step3Diffusion.diffuse(u0, T(8) * limit, α, dx, 11; method = :cn)
+    @test maximum(abs.(uC)) <= T(1) + T(1e-6)
+
+    # 하지만 최대원리 위반: 부호가 번갈아 나오는 링(음수 값)이 생김
+    # → 음해법은 "발산하지 않을 뿐", 큰 Δt에서 왜곡된 해를 보여줄 수 있다
+    @test minimum(uC) < T(0)
+end
+
+# ---------------------------------------------------------------------------
+# 18. Step3 깨뜨리기: 매끄러운 해 → 잠복 → 고주파 발산 (삼단 서사)
+#
+#   초기조건: 매끄러운 sin(πy) + 눈에 안 보이는 고주파 섭동 sin(9πy)·1e-3
+#   Δt = 0.3 (명시적 한계 0.125의 2.4배)
+#     스텝 1–25: 매끄러운 해가 정상 감쇠 (0.97 → 0.47)
+#     스텝 26–27: 고주파 잔재가 이기기 시작 (0.47 → 0.51)
+#     스텝 28–30: 톱니(sawtooth) 발산 (0.80 → 2.08 → 6.65)
+#   같은 조건 CN: 정상 (max 0.412, 해석해 오차 7.2e-4), RK4: 3.5e14 발산
+#   → "물리는 매끄러운데 계산이 망가진다" — 격자·시간 간격의 계약
+# ---------------------------------------------------------------------------
+@testset "Step3 깨뜨리기: 매끄러움 → 잠복 → 발산" begin
+    T = Float64
+    α = T(0.01)
+    N = 20
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+
+    u0 = [Step3Diffusion.sin_mode_initial(yi) + T(1e-3) * sin(T(9) * T(π) * yi) for yi in y]
+    Δt = T(0.3)
+    limit = dx^2 / (T(2) * α)
+    @test Δt / limit ≈ T(2.4) rtol = T(1e-3)  # 조건 확인
+
+    # 스텝별 max|u| 추이를 직접 확인 (삼단 서사)
+    u = copy(u0)
+    hist = Float64[maximum(abs.(u))]
+    for s in 1:30
+        u = Step3Diffusion.diffuse(u, Δt, α, dx, 1; method = :euler)
+        push!(hist, maximum(abs.(u)))
+    end
+    # 1) 처음엔 매끄럽게 감쇠
+    @test hist[25] < T(0.5) && hist[25] > T(0.4)
+    # 2) 전환점 (25→27 사이 최소, 이후 반등)
+    @test argmin(hist) == 26  # hist는 0스텝부터: hist[26] = 25스텝 후
+    # 3) 발산
+    @test hist[31] > T(1e6) || hist[31] > T(6)
+    # 정확한 값: 스텝 30에서 6.65 (단기 발산, 추세 확인)
+    @test hist[end] ≈ T(6.645961359408092) rtol = T(1e-6)
+    # 프로파일이 톱니: 인접 값 부호 반대
+    @test sign(u[2]) != sign(u[3])
+    @test sign(u[10]) != sign(u[11])
+end
+
+# 18번 테스트의 발산 경로가 CN과 RK4와 대비되는지 (같은 초기조건)
+@testset "Step3 깨뜨리기: CN은 같은 상황에서 정상" begin
+    T = Float64
+    α = T(0.01)
+    N = 20
+    dx = T(1) / N
+    y = [T(i) * dx for i in 0:N]
+    u0 = [Step3Diffusion.sin_mode_initial(yi) + T(1e-3) * sin(T(9) * T(π) * yi) for yi in y]
+
+    # CN: 같은 Δt=0.3 ×30스텝 — 발산하지 않고 해석해와 일치
+    uC = Step3Diffusion.diffuse(u0, T(0.3), α, dx, 30; method = :cn)
+    @test maximum(abs.(uC)) < T(0.5)
+    ex = [Step3Diffusion.sin_mode_exact(yi, T(9.0), α) for yi in y]
+    @test maximum(abs.(uC .- ex)) < T(0.001)
+
+    # RK4: 같은 조건에서 발산 (RK4도 명시적 방법 — 안정 한계가 Euler보다 약간 클 뿐)
+    uR = Step3Diffusion.diffuse(u0, T(0.3), α, dx, 30; method = :rk4)
+    @test maximum(abs.(uR)) > T(1e6)
 end

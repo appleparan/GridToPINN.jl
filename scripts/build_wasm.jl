@@ -30,6 +30,11 @@ using .Step2TimeIntegration
 include(joinpath(SRC, "step1_wasm.jl"))
 include(joinpath(SRC, "step2_wasm.jl"))
 
+include(joinpath(SRC, "03-diffusion.jl"))
+using .Step3Diffusion
+
+include(joinpath(SRC, "step3_wasm.jl"))
+
 # ── WASM 컴파일 대상 함수 목록 ──
 entries = [
     (dual_add_wasm,      (Dual{Float64}, Dual{Float64}),    "dual_add"),
@@ -50,12 +55,17 @@ entries = [
     (rk4_step_wasm, (Float64, Float64, Float64, Float64, Float64, Float64), "rk4_step"),
     (top_speed_target_wasm, (Float64, Float64, Float64, Float64, Float64, Int64), "top_speed_target"),
     (ode_integrate_wasm, (Float64, Float64, Float64, Float64, Float64, Float64, Float64, Float64, Int64), "ode_integrate"),
+    (erfc_wasm, (Float64,), "erfc"),
+    (stokes_first_wasm, (Float64, Float64, Float64, Float64), "stokes_first"),
+    (diffusion_depth_wasm, (Float64, Float64), "diffusion_depth"),
+    (diffuse_advance_wasm, (Vector{Float64}, Float64, Float64, Float64, Int64, Int64), "diffuse_advance"),
+    (max_abs_wasm, (Vector{Float64},), "max_abs"),
 ]
 
 # ── manifest 생성 ──
 function make_manifest()
     Dict{String, Any}(
-        "step" => 2,
+        "step" => 3,
         "wasm_file" => "step1.wasm",
         "note" => "Step1 + Step2 통합 WASM. 함수명으로 export된 함수를 호출.",
         "functions" => Vector{Any}([
@@ -112,6 +122,22 @@ function make_manifest()
                             "Int64 method"],
                  "ret" => "Vector{Float64}",
                  "note" => "t0부터 t_end까지 적분. method: 1=euler, 2=rk4. 반환: [t0,y0,t1,y1,...] 평탄화, 길이 2*(스텝수+1). vec_len/vec_get으로 읽음"),
+            Dict("name" => "erfc", "args" => ["Float64 x"], "ret" => "Float64",
+                 "note" => "상오차함수, A&S 7.1.26 근사 (오차 1.5e-7 이하)"),
+            Dict("name" => "stokes_first",
+                 "args" => ["Float64 y", "Float64 t", "Float64 U", "Float64 nu"],
+                 "ret" => "Float64",
+                 "note" => "움직이는 벽(Stokes 1종) 해석해 U*erfc(y/(2*sqrt(nu*t))). t>0 필요"),
+            Dict("name" => "diffusion_depth", "args" => ["Float64 nu", "Float64 t"],
+                 "ret" => "Float64",
+                 "note" => "확산 깊이 2*sqrt(nu*t). 그 깊이에서 u/U = erfc(1) = 0.157"),
+            Dict("name" => "diffuse_advance",
+                 "args" => ["Vector u", "Float64 dt", "Float64 nu", "Float64 dx",
+                            "Int64 nsteps", "Int64 method"],
+                 "ret" => "Int64",
+                 "note" => "확산 n스텝 전진 (u in-place 갱신). method 1=euler, 2=rk4, 3=cn(Crank-Nicolson, 무조건 안정). Dirichlet 고정 경계. 상태형 호출: vec_new로 만들고 vec_set으로 초기조건 → 이 함수로 전진 → vec_get으로 장 읽기"),
+            Dict("name" => "max_abs", "args" => ["Vector u"], "ret" => "Float64",
+                 "note" => "max|u_i| — 발산 확인용 보조"),
         ]),
         "manipulators" => Vector{Any}([
             Dict("name" => "P", "unit" => "W", "default" => 50.0, "range" => [1.0, 1000.0],
@@ -131,18 +157,27 @@ function make_manifest()
             Dict("name" => "h", "unit" => "-", "default" => 0.001, "range" => [1e-12, 0.1],
                  "used_by" => ["derivative_fd"]),
             Dict("name" => "dt", "unit" => "s", "default" => 0.1, "range" => [0.001, 1.0],
-                 "used_by" => ["euler_step", "rk4_step", "ode_integrate"]),
+                 "used_by" => ["euler_step", "rk4_step", "ode_integrate", "diffuse_advance"]),
             Dict("name" => "t_end", "unit" => "s", "default" => 0.5, "range" => [0.001, 10.0],
                  "used_by" => ["ode_integrate"]),
             Dict("name" => "y0", "unit" => "m/s", "default" => 0.0, "range" => [0.0, 50.0],
                  "used_by" => ["euler_step", "rk4_step", "ode_integrate"]),
             Dict("name" => "t0", "unit" => "s", "default" => 0.0, "range" => [0.0, 10.0],
                  "used_by" => ["ode_integrate"]),
-            Dict("name" => "method", "unit" => "-", "default" => 2, "range" => [1, 2],
-                 "used_by" => ["ode_integrate"],
+            Dict("name" => "nu", "unit" => "m^2/s", "default" => 1e-6, "range" => [1e-6, 1e-2],
+                 "used_by" => ["diffuse_advance", "stokes_first", "diffusion_depth"]),
+            Dict("name" => "U", "unit" => "m/s", "default" => 1.0, "range" => [0.0, 10.0],
+                 "used_by" => ["stokes_first"]),
+            Dict("name" => "nsteps", "unit" => "-", "default" => 1000, "range" => [1, 100000],
+                 "used_by" => ["diffuse_advance"]),
+            Dict("name" => "dx", "unit" => "m", "default" => 1e-4, "range" => [1e-5, 1.0],
+                 "used_by" => ["diffuse_advance"]),
+            Dict("name" => "method", "unit" => "-", "default" => 2, "range" => [1, 3],
+                 "used_by" => ["ode_integrate", "diffuse_advance"],
                  "options" => Vector{Any}([
                      Dict("id" => 1, "name" => "Euler (1차)"),
                      Dict("id" => 2, "name" => "RK4 (4차)"),
+                     Dict("id" => 3, "name" => "Crank-Nicolson (음해, 무조건 안정)"),
                  ])),
         ]),
         "alternatives" => Vector{Any}([
@@ -152,6 +187,15 @@ function make_manifest()
                           "fn" => "derivative_fd", "param" => "h"),
                      Dict("id" => "dual", "name" => "이중수 자동미분 (정확)",
                           "fn" => "derivative_dual", "param" => "없음"),
+                 ])),
+            Dict("location" => "확산 적분기 (선의 방법)",
+                 "options" => Vector{Any}([
+                     Dict("id" => "euler", "name" => "Euler (1차, 한계 dt = dx^2/(2nu))",
+                          "fn" => "diffuse_advance", "param" => "method=1"),
+                     Dict("id" => "rk4", "name" => "RK4 (4차, 한계 dt = 0.696*dx^2/nu)",
+                          "fn" => "diffuse_advance", "param" => "method=2"),
+                     Dict("id" => "cn", "name" => "Crank-Nicolson (음해, 무조건 안정, 시간 2차)",
+                          "fn" => "diffuse_advance", "param" => "method=3"),
                  ])),
             Dict("location" => "적분기 (ODE 적분)",
                  "options" => Vector{Any}([
@@ -168,6 +212,10 @@ function make_manifest()
             "기본 인자(GlobalRef) 미지원: 모든 WASM 진입점은 기본 인자 없이 모든 인자 명시",
             "Step2 적분기는 acceleration에 특화 - 일반 f 함수는 JS에서 전달 불가",
             "ode_integrate 반환값 Vector{Tuple} - JS에서 vec_len/vec_get으로 요소 접근",
+            "Step3 확산은 명시적 방법 - 안정 한계 dt <= dx^2/(2nu)(Euler), 0.696*dx^2/nu(RK4), 초과 시 발산",
+            "erfc는 A&S 7.1.26 근사 (|오차| <= 1.5e-7) - 더 높은 정밀도가 필요하면 고차 근사로 교체",
+            "diffuse_advance는 u를 in-place 갱신 - 중간 결과는 nsteps=1 반복 호출로 꺼낸다",
+            "CN(method=3)은 무조건 안정이지만 최대원리는 없음 - 큰 dt에서 부호가 번갈아 나오는 링(음수 값) 가능",
         ]),
     )
 end
