@@ -109,10 +109,18 @@
 		return {
 			width,
 			height,
-			scales: { x: { time: false }, y: logY ? { distr: 3 } : {
-							range: (_u: uPlotType, lo: number, hi: number): uPlotType.Range.MinMax =>
-								yRange ? [yRange.min, yRange.max] : U.rangeNum(lo, hi, 0.1, true)
-						} },
+			scales: {
+				x: { time: false },
+				y: logY
+					? { distr: 3 }
+					: {
+							range: (_u: uPlotType, lo: number | null, hi: number | null): uPlotType.Range.MinMax => {
+								if (yRange) return [yRange.min, yRange.max];
+								if (lo == null || hi == null) return [null, null];
+								return U.rangeNum(lo, hi, 0.1, true);
+							}
+						}
+			},
 			axes: [
 				{ ...axisBase, label: xLabel, labelSize: 22 },
 				{
@@ -164,7 +172,14 @@
 							const flip = cx + 4 * dpr + w > u.bbox.left + u.bbox.width;
 							ctx.setLineDash([]);
 							ctx.textAlign = flip ? 'right' : 'left';
-							ctx.fillText(m.label, cx + (flip ? -4 : 4) * dpr, u.bbox.top + u.bbox.height - 6 * dpr);
+							ctx.textBaseline = 'bottom';
+							const tx = cx + (flip ? -4 : 4) * dpr;
+							const ty = u.bbox.top + u.bbox.height - 6 * dpr;
+							// Plate in the card color so the label stays readable over curves and axis lines.
+							ctx.fillStyle = cssVar('--card');
+							ctx.fillRect(flip ? tx - w - 2 * dpr : tx - 2 * dpr, ty - 14 * dpr, w + 4 * dpr, 16 * dpr);
+							ctx.fillStyle = cssVar('--plot-axis');
+							ctx.fillText(m.label, tx, ty);
 							ctx.setLineDash([4 * dpr, 4 * dpr]);
 						}
 						ctx.restore();

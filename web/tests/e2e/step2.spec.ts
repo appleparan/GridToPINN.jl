@@ -45,3 +45,18 @@ test('Euler past its stability limit goes bad without throwing', async ({ page }
 	await page.screenshot({ path: `${SHOTS}/${PREFIX}step2-break.png`, fullPage: true });
 	expect(w.problems).toEqual([]);
 });
+
+test('dragging does not recompute the muted curves every frame', async ({ page }) => {
+	await page.goto(`${BASE}/step/2`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await set(page, 'Δt', '0.001');
+	await expect(page.getByTestId('readout-steps')).toHaveAttribute('data-value', '80000', { timeout: 30_000 });
+	await page.waitForTimeout(600);
+	const runs = async () => Number(await page.getByTestId('experiment').getAttribute('data-muted-runs'));
+	const before = await runs();
+	await page.getByTestId('param-P').getByRole('slider').focus();
+	for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowRight');
+	await page.waitForTimeout(800);
+	expect(await runs() - before).toBeLessThanOrEqual(3);
+	expect(await runs() - before).toBeGreaterThanOrEqual(1);
+});

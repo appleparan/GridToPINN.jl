@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import * as Alert from '$lib/components/ui/alert';
 	import { readVector, type Precision, type Step } from '$lib/gridtopinn';
@@ -123,13 +123,23 @@
 	});
 
 	// The other methods, from the settled parameters.
+	// Read the selected method through its own derived: `applied` is replaced every frame, `sel` only changes
+	// when the selection does, so this does not re-run per frame.
+	const sel = $derived(applied.method);
 	const muted = $derived.by((): PlotSeries[] | undefined => {
 		const a = settled;
 		try {
-			return mutedRuns(applied.method, a).map(({ o, r }) => seriesOf(o, r, 'muted'));
+			return mutedRuns(sel, a).map(({ o, r }) => seriesOf(o, r, 'muted'));
 		} catch {
 			return undefined; // the selected method's own try/catch reports the error
 		}
+	});
+
+	// Test hook: counts how often the muted series were recomputed.
+	let mutedCount = $state(0);
+	$effect(() => {
+		void muted;
+		untrack(() => mutedCount++);
 	});
 
 	// Keep the last good result on screen while a later compute fails.
@@ -175,7 +185,7 @@
 	const markers = $derived([{ x: applied.values.t_open, label: 'DRS 열림' }]);
 </script>
 
-<ExperimentFrame computeMs={display?.ms}>
+<ExperimentFrame computeMs={display?.ms} mutedRuns={mutedCount}>
 	{#snippet code()}
 		<div class="flex flex-wrap items-end gap-x-6 gap-y-4">
 			<AltPicker {alt} bind:value={method} />

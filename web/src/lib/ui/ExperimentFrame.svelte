@@ -7,13 +7,16 @@
 		code,
 		plot,
 		readouts,
-		computeMs
+		computeMs,
+		mutedRuns
 	}: {
 		controls: Snippet;
 		code: Snippet;
 		plot: Snippet;
 		readouts: Snippet;
 		computeMs?: number;
+		/** Step 2 test hook: number of muted-series recomputations. */
+		mutedRuns?: number;
 	} = $props();
 </script>
 
@@ -23,6 +26,7 @@
 		class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] xl:items-start"
 		data-testid="experiment"
 		data-compute-ms={computeMs === undefined ? undefined : computeMs.toFixed(2)}
+		data-muted-runs={mutedRuns}
 	>
 		<div class="order-2 flex min-w-0 flex-col gap-6 xl:order-1">
 			{@render code()}
