@@ -88,3 +88,13 @@ test('Float32 changes the numbers; the plot survives a theme toggle', async ({ p
 	await expect(page.getByTestId('plot').locator('canvas')).toBeVisible();
 	await page.screenshot({ path: `${SHOTS}/${PREFIX}step1-dark.png`, fullPage: true });
 });
+
+test('step 1 reveals the Newton iterates one by one, then is done', async ({ page }) => {
+	await page.goto(`${BASE}/step/1`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await expect(page.getByTestId('play-status')).toHaveAttribute('data-status', 'playing');
+	const iterations = await num(page, 'iterations');
+	expect(await num(page, 'play-iteration')).toBeLessThan(iterations - 1);
+	await expect(page.getByTestId('play-status')).toHaveAttribute('data-status', 'done', { timeout: 15_000 });
+	expect(await num(page, 'play-iteration')).toBe(iterations - 1);
+});

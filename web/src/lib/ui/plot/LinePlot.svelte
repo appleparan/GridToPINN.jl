@@ -26,7 +26,8 @@
 	const ROLE_VAR: Record<SeriesRole, string> = {
 		primary: '--plot-primary',
 		reference: '--plot-reference',
-		muted: '--plot-muted'
+		muted: '--plot-muted',
+		ghost: '--plot-ghost'
 	};
 
 	let root: HTMLDivElement | undefined = $state();
@@ -38,7 +39,8 @@
 	let themeTick = $state(0);
 
 	const pointCount = $derived.by(() => {
-		const s = series.find((q) => q.role === 'primary');
+		// the ghost, when present, is the full selected series: playback must not change this count
+		const s = series.find((q) => q.role === 'ghost') ?? series.find((q) => q.role === 'primary');
 		if (!s) return 0;
 		let n = 0;
 		for (let i = 0; i < s.y.length; i++) if (Number.isFinite(s.y[i])) n++;
@@ -141,7 +143,7 @@
 						width: s.role === 'primary' ? 2.25 : 1.5,
 						dash: s.dashed ? [6, 4] : undefined,
 						spanGaps: true,
-						points: s.points
+						points: s.points && s.role !== 'ghost'
 							? { show: true, size: s.role === 'primary' ? 7 : 5, fill: color, stroke: color }
 							: { show: false }
 					};
@@ -151,6 +153,30 @@
 			legend: { show: false },
 			hooks: {
 				draw: [
+					(u: uPlotType) => {
+						// playback head: a filled dot at the last finite point of the series that asks for it
+						const ctx = u.ctx;
+						series.forEach((s, i) => {
+							if (!s.head) return;
+							const ys = u.data[i + 1];
+							const xs = u.data[0];
+							let k = ys.length - 1;
+							while (k >= 0 && ys[k] == null) k--;
+							if (k < 0) return;
+							const cx = u.valToPos(xs[k], 'x', true);
+							const cy = u.valToPos(ys[k] as number, 'y', true);
+							const r = 6 * devicePixelRatio;
+							ctx.save();
+							ctx.beginPath();
+							ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+							ctx.fillStyle = cssVar(ROLE_VAR[s.role]);
+							ctx.fill();
+							ctx.lineWidth = 2 * devicePixelRatio;
+							ctx.strokeStyle = cssVar('--card');
+							ctx.stroke();
+							ctx.restore();
+						});
+					},
 					(u: uPlotType) => {
 						const ctx = u.ctx;
 						const dpr = devicePixelRatio;
@@ -204,7 +230,7 @@
 			return;
 		}
 		const theme = themeTick;
-		const key = [theme, logY, xLabel, yLabel, height, ...series.map((s) => `${s.label}|${s.role}|${s.points}|${s.dashed}`)].join(
+		const key = [theme, logY, xLabel, yLabel, height, ...series.map((s) => `${s.label}|${s.role}|${s.points}|${s.dashed}|${s.head}`)].join(
 			'\n'
 		);
 		const data = buildData(U);
@@ -237,7 +263,7 @@
 	<div bind:this={root} class="w-full"></div>
 	{#if series.length > 0}
 		<ul class="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs" aria-label="범례">
-			{#each series as s (s.label)}
+			{#each series.filter((q) => q.role !== 'ghost') as s (s.label)}
 				<li class="flex items-center gap-1.5" class:text-foreground={s.role === 'primary'} class:font-medium={s.role === 'primary'}>
 					<svg width="18" height="8" aria-hidden="true">
 						<line

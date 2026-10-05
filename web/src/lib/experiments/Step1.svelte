@@ -12,7 +12,10 @@
 	import type { PlotSeries } from '$lib/ui/plot/types';
 	import Readout from '$lib/ui/Readout.svelte';
 	import Verdict from '$lib/ui/Verdict.svelte';
+	import PlaybackControls from '$lib/ui/PlaybackControls.svelte';
 	import { EXPERIMENTS, PASS, defaultOf, findParam, initialValues } from './config';
+	import { createPlayback } from './playback.svelte';
+	import { revealCount } from './reveal';
 
 	let { step }: { step: Step } = $props();
 
@@ -82,15 +85,17 @@
 			const gain: number = step.fn('drs_gain', p)(v.P, rho, area, v.Froll, v.Cd_closed, v.Cd_open);
 			const relError = Math.abs(vClosed - ref) / ref;
 
-			const series: PlotSeries[] = alt.options.map((o) => {
+			// The selected method is drawn twice: the full curve as ghost, then the bright curve (revealed
+			// by playback, see `series` below). Plot order follows the option order.
+			const series: PlotSeries[] = alt.options.flatMap((o): PlotSeries[] => {
 				const it = its[o.key];
-				return {
-					label: o.label,
-					role: o.key === selected.key ? 'primary' : 'muted',
-					x: Array.from(it, (_, i) => i),
-					y: Array.from(it, (u) => Math.abs(u - ref) * kmh.scale),
-					points: true
-				};
+				const x = Array.from(it, (_, i) => i);
+				const y = Array.from(it, (u) => Math.abs(u - ref) * kmh.scale);
+				if (o.key !== selected.key) return [{ label: o.label, role: 'muted', x, y, points: true }];
+				return [
+					{ label: `${o.label} (전체)`, role: 'ghost', x, y },
+					{ label: o.label, role: 'primary', x, y, points: true, head: true }
+				];
 			});
 
 			let verdict: Result['verdict'];
@@ -130,6 +135,47 @@
 		if (outcome.ok) shown = outcome.r;
 	});
 	const display = $derived(outcome.ok ? outcome.r : shown);
+	// Playback: one Newton iterate per 500 ms (at least 1.5 s in all).
+	const ITERATE_MS = 500;
+	const MIN_PLAY_MS = 1500;
+	const RESTART_MS = 200;
+	const playback = createPlayback(MIN_PLAY_MS);
+	const iterations = $derived(display?.iterations ?? 1);
+	$effect(() => playback.setDuration(Math.max(MIN_PLAY_MS, ITERATE_MS * (iterations - 1))));
+	const shownIterates = $derived(Math.min(iterations, 1 + Math.floor(playback.progress * (iterations - 1))));
+	const series = $derived(
+		(display?.series ?? []).map((s): PlotSeries => {
+			if (s.role !== 'primary') return s;
+			const r = revealCount(s.x, s.y, shownIterates);
+			return { ...s, x: r.x, y: r.y };
+		})
+	);
+
+	let reduced = false;
+	let restartTimer: ReturnType<typeof setTimeout> | undefined;
+	function startPlayback() {
+		if (reduced) playback.finish();
+		else playback.restart();
+	}
+	onMount(() => {
+		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		startPlayback();
+		return () => {
+			clearTimeout(restartTimer);
+			playback.dispose();
+		};
+	});
+	// Any control change restarts the playback once the controls have been still for RESTART_MS.
+	let seenControls = false;
+	$effect(() => {
+		void [{ ...values }, method, precision];
+		if (!seenControls) {
+			seenControls = true;
+			return;
+		}
+		clearTimeout(restartTimer);
+		restartTimer = setTimeout(startPlayback, RESTART_MS);
+	});
 	const selectedOption = $derived(alt.options.find((o) => o.value === method) ?? alt.options[0]);
 </script>
 
@@ -159,14 +205,16 @@
 			<h2 class="text-sm font-medium">Newton 반복마다 줄어드는 오차</h2>
 			{#if display}<Verdict verdict={display.verdict} text={display.verdictText} />{/if}
 		</div>
-		<LinePlot series={display?.series ?? []} xLabel="반복 횟수" yLabel="|v − v*| [{kmh.unit}]" logY />
+		<LinePlot {series} xLabel="반복 횟수" yLabel="|v − v*| [{kmh.unit}]" logY />
+		<div class="mt-3"><PlaybackControls {playback} /></div>
 		{#if display}
 			<p class="text-muted-foreground mt-2 text-xs">기준값: {display.refLabel}</p>
 		{/if}
 	{/snippet}
 	{#snippet readouts()}
 		{#if display}
-			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 xl:grid-cols-3">
+			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
+				<Readout key="play-iteration" label="재생 중인 반복" value={shownIterates - 1} />
 				<Readout key="v-closed" label="DRS 닫힘 최고속도" value={display.vClosed * kmh.scale} unit={kmh.unit} />
 				<Readout key="v-open" label="DRS 열림 최고속도" value={display.vOpen * kmh.scale} unit={kmh.unit} />
 				<Readout key="gain" label="DRS 이득" value={display.gain * gainUnit.scale} unit={gainUnit.unit} />

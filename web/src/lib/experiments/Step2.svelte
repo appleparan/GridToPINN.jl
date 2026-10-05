@@ -12,7 +12,10 @@
 	import type { PlotSeries } from '$lib/ui/plot/types';
 	import Readout from '$lib/ui/Readout.svelte';
 	import Verdict from '$lib/ui/Verdict.svelte';
+	import PlaybackControls from '$lib/ui/PlaybackControls.svelte';
 	import { EXPERIMENTS, PASS, defaultOf, findParam, initialValues } from './config';
+	import { createPlayback } from './playback.svelte';
+	import { revealUpTo } from './reveal';
 
 	let { step }: { step: Step } = $props();
 
@@ -150,11 +153,23 @@
 	const display = $derived(outcome.ok ? outcome.r : shown);
 	const selectedOption = $derived(alt.options.find((o) => o.value === method) ?? alt.options[0]);
 
-	// Plot order follows the option order so legend entries stay put when the selection changes.
-	const series = $derived.by((): PlotSeries[] => {
+	// Playback: the full result exists at once; the bright curve is revealed up to the playback time.
+	const PLAY_MS = 4000;
+	const RESTART_MS = 200;
+	const playback = createPlayback(PLAY_MS);
+	const tNow = $derived(playback.progress * tEnd);
+
+	// The curves that do not depend on the playback time. Plot order follows the option order so legend
+	// entries stay put when the selection changes; the selected method is drawn as ghost + bright curve.
+	const fullSeries = $derived.by((): PlotSeries[] => {
 		if (!display) return [];
-		const byLabel = new Map([...(muted ?? []), ...display.series].map((s) => [s.label, s]));
-		const ordered = alt.options.map((o) => byLabel.get(o.label)).filter((s): s is PlotSeries => !!s);
+		const sel = display.series[0];
+		const byLabel = new Map((muted ?? []).map((s) => [s.label, s]));
+		const ordered = alt.options.flatMap((o): PlotSeries[] => {
+			if (o.label === sel.label) return [{ ...sel, role: 'ghost', label: `${sel.label} (전체)`, points: false }, sel];
+			const s = byLabel.get(o.label);
+			return s ? [s] : [];
+		});
 		const ref: PlotSeries = {
 			label: '목표 속도 (열림 최고속도)',
 			role: 'reference',
@@ -165,11 +180,48 @@
 		return [...ordered, ref];
 	});
 
+	const head = $derived.by(() => {
+		const sel = display?.series[0];
+		return sel ? revealUpTo(sel.x, sel.y, tNow) : { x: [], y: [] };
+	});
+	const series = $derived(
+		fullSeries.map((s): PlotSeries =>
+			s.role === 'primary' ? { ...s, x: head.x, y: head.y, head: true } : s
+		)
+	);
+	const playSpeed = $derived(head.y.length ? head.y[head.y.length - 1] : 0);
+
+	let reduced = false;
+	let restartTimer: ReturnType<typeof setTimeout> | undefined;
+	function startPlayback() {
+		if (reduced) playback.finish();
+		else playback.restart();
+	}
+	onMount(() => {
+		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		startPlayback();
+		return () => {
+			clearTimeout(restartTimer);
+			playback.dispose();
+		};
+	});
+	// Any control change restarts the playback once the controls have been still for RESTART_MS.
+	let seenControls = false;
+	$effect(() => {
+		void [{ ...values }, method, precision];
+		if (!seenControls) {
+			seenControls = true;
+			return;
+		}
+		clearTimeout(restartTimer);
+		restartTimer = setTimeout(startPlayback, RESTART_MS);
+	});
+
 	// Muted curves may have diverged by orders of magnitude: fit the axis to the good curves only.
 	const yRange = $derived.by(() => {
 		let lo = Infinity;
 		let hi = -Infinity;
-		for (const s of series) {
+		for (const s of fullSeries) {
 			if (s.role === 'muted') continue;
 			for (let i = 0; i < s.y.length; i++) {
 				const y = s.y[i];
@@ -212,10 +264,13 @@
 			{#if display}<Verdict verdict={display.verdict} text={display.verdictText} />{/if}
 		</div>
 		<LinePlot {series} xLabel="t [s]" yLabel="v [{kmh.unit}]" {markers} {yRange} />
+		<div class="mt-3"><PlaybackControls {playback} /></div>
 	{/snippet}
 	{#snippet readouts()}
 		{#if display}
-			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 xl:grid-cols-3">
+			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
+				<Readout key="play-time" label="재생 시각" value={tNow} unit="s" />
+				<Readout key="play-speed" label="재생 위치의 속도" value={playSpeed} unit={kmh.unit} />
 				<Readout key="v-end" label="t_end의 속도" value={display.vEnd} unit={kmh.unit} />
 				<Readout key="target" label="목표 속도" value={display.target} unit={kmh.unit} />
 				<Readout key="rel-diff" label="목표와의 상대 차이" value={display.relDiff} />

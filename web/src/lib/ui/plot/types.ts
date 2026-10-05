@@ -1,4 +1,4 @@
-export type SeriesRole = 'primary' | 'reference' | 'muted';
+export type SeriesRole = 'primary' | 'reference' | 'muted' | 'ghost';
 export interface PlotSeries {
 	label: string;
 	role: SeriesRole;
@@ -6,6 +6,8 @@ export interface PlotSeries {
 	y: ArrayLike<number>;
 	points?: boolean;
 	dashed?: boolean;
+	/** Draw a filled dot at the last finite point (the moving head during playback). */
+	head?: boolean;
 }
 /** A vertical dashed line at x. */
 export interface PlotMarker {

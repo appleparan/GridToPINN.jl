@@ -60,3 +60,52 @@ test('dragging does not recompute the muted curves every frame', async ({ page }
 	expect(await runs() - before).toBeLessThanOrEqual(3);
 	expect(await runs() - before).toBeGreaterThanOrEqual(1);
 });
+
+const playStatus = (page: Page) => page.getByTestId('play-status');
+
+test('step 2 plays by itself while the verdict is already final', async ({ page }) => {
+	const w = watch(page);
+	await page.goto(`${BASE}/step/2`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'playing');
+	const t1 = await num(page, 'play-time');
+	await expect.poll(() => num(page, 'play-time')).toBeGreaterThan(t1);
+	await expect(page.getByTestId('play-progress')).toHaveAttribute('aria-valuenow', /\d+/);
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'done', { timeout: 15_000 });
+	expect(await num(page, 'play-time')).toBe(80);
+	expect(await num(page, 'play-speed')).toBeCloseTo(await num(page, 'v-end'), 3);
+	expect(w.problems).toEqual([]);
+});
+
+test('pause freezes the playback, play resumes, restart starts over', async ({ page }) => {
+	await page.goto(`${BASE}/step/2`);
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'playing', { timeout: 30_000 });
+	await expect.poll(() => num(page, 'play-time')).toBeGreaterThan(5);
+	await page.getByTestId('play-pause').click();
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'paused');
+	const t = await num(page, 'play-time');
+	await page.waitForTimeout(300);
+	expect(await num(page, 'play-time')).toBe(t);
+	await page.getByTestId('play-play').click();
+	await expect.poll(() => num(page, 'play-time')).toBeGreaterThan(t);
+	await expect.poll(() => num(page, 'play-time')).toBeGreaterThan(t + 2);
+	await page.getByTestId('play-restart').click();
+	await expect.poll(() => num(page, 'play-time')).toBeLessThan(t);
+});
+
+test('changing a parameter restarts the playback', async ({ page }) => {
+	await page.goto(`${BASE}/step/2`);
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'done', { timeout: 30_000 });
+	expect(await num(page, 'play-time')).toBe(80);
+	await set(page, 'm', '1600');
+	await expect.poll(() => num(page, 'play-time')).toBeLessThan(80);
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'playing');
+});
+
+test('reduced motion: step 2 loads already finished', async ({ page }) => {
+	await page.emulateMedia({ reducedMotion: 'reduce' });
+	await page.goto(`${BASE}/step/2`);
+	await expect(page.getByTestId('verdict')).toHaveAttribute('data-verdict', 'pass', { timeout: 30_000 });
+	await expect(playStatus(page)).toHaveAttribute('data-status', 'done');
+	expect(await num(page, 'play-time')).toBe(80);
+});

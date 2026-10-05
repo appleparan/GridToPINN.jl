@@ -86,6 +86,7 @@
 	--plot-primary: oklch(0.55 0.19 255);
 	--plot-reference: oklch(0.62 0.19 40);
 	--plot-muted: oklch(0.75 0.01 260);
+	--plot-ghost: oklch(0.55 0.19 255 / 0.4);
 	--plot-grid: oklch(0.92 0 0);
 	--plot-axis: oklch(0.45 0 0);
 }
@@ -125,6 +126,7 @@
 	--plot-primary: oklch(0.72 0.16 250);
 	--plot-reference: oklch(0.76 0.16 55);
 	--plot-muted: oklch(0.45 0.01 260);
+	--plot-ghost: oklch(0.72 0.16 250 / 0.4);
 	--plot-grid: oklch(0.3 0 0);
 	--plot-axis: oklch(0.75 0 0);
 }
