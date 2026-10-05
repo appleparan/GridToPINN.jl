@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import type uPlotType from 'uplot';
+	import { decimate } from './decimate';
 	import type { PlotMarker, PlotSeries, SeriesRole } from './types';
 
 	let {
@@ -38,14 +39,31 @@
 	// which would make us read the old theme's --plot-* values.
 	let themeTick = $state(0);
 
+	// Per-array caches: playback swaps `series` every frame but the static curves keep their array identity,
+	// so neither the finite-point count nor the cleaned [x, y] table is recomputed for them.
+	const counts = new WeakMap<ArrayLike<number>, number>();
+	function finiteCount(y: ArrayLike<number>): number {
+		let n = counts.get(y);
+		if (n === undefined) {
+			n = 0;
+			for (let i = 0; i < y.length; i++) if (Number.isFinite(y[i])) n++;
+			counts.set(y, n);
+		}
+		return n;
+	}
+	const tables = new WeakMap<ArrayLike<number>, { x: ArrayLike<number>; logY: boolean; cap: number; table: uPlotType.AlignedData }>();
+
 	const pointCount = $derived.by(() => {
 		// the ghost, when present, is the full selected series: playback must not change this count
 		const s = series.find((q) => q.role === 'ghost') ?? series.find((q) => q.role === 'primary');
 		if (!s) return 0;
-		let n = 0;
-		for (let i = 0; i < s.y.length; i++) if (Number.isFinite(s.y[i])) n++;
-		return n;
+		return finiteCount(s.y);
 	});
+
+	// Legend follows `order` (default: series order), so the draw order can differ from it.
+	const legendSeries = $derived(
+		series.filter((q) => q.role !== 'ghost').sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+	);
 
 	onMount(() => {
 		let disposed = false;
@@ -73,13 +91,17 @@
 	}
 
 	// One [x, y] table per series; uPlot.join aligns series that sit on different x grids.
-	function buildData(U: typeof uPlotType): uPlotType.AlignedData {
-		const tables = series.map((s) => {
-			const x = Array.from(s.x);
-			const y = Array.from(s.y, clean);
-			return [x, y] as uPlotType.AlignedData;
+	function buildData(U: typeof uPlotType, cap: number): uPlotType.AlignedData {
+		const aligned = series.map((s) => {
+			const hit = tables.get(s.y);
+			if (hit && hit.x === s.x && hit.logY === logY && hit.cap === cap) return hit.table;
+			// display only: a series longer than ~4 points per pixel is thinned (min/max kept) before drawing
+			const d = decimate(s.x, s.y, cap);
+			const table = [d.x, d.y.map(clean)] as uPlotType.AlignedData;
+			tables.set(s.y, { x: s.x, logY, cap, table });
+			return table;
 		});
-		return U.join(tables);
+		return U.join(aligned);
 	}
 
 	// Log axis: label powers of ten only, thinned to at most ~6 ticks.
@@ -233,7 +255,7 @@
 		const key = [theme, logY, xLabel, yLabel, height, ...series.map((s) => `${s.label}|${s.role}|${s.points}|${s.dashed}|${s.head}`)].join(
 			'\n'
 		);
-		const data = buildData(U);
+		const data = buildData(U, Math.max(1000, 4 * (el.clientWidth || 600)));
 		void markers.length;
 		untrack(() => {
 			if (plot && key === builtKey) {
@@ -263,7 +285,7 @@
 	<div bind:this={root} class="w-full"></div>
 	{#if series.length > 0}
 		<ul class="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs" aria-label="범례">
-			{#each series.filter((q) => q.role !== 'ghost') as s (s.label)}
+			{#each legendSeries as s (s.label)}
 				<li class="flex items-center gap-1.5" class:text-foreground={s.role === 'primary'} class:font-medium={s.role === 'primary'}>
 					<svg width="18" height="8" aria-hidden="true">
 						<line

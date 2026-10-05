@@ -8,6 +8,8 @@ export interface PlotSeries {
 	dashed?: boolean;
 	/** Draw a filled dot at the last finite point (the moving head during playback). */
 	head?: boolean;
+	/** Legend position; default keeps the series order. Draw order is the series order. */
+	order?: number;
 }
 /** A vertical dashed line at x. */
 export interface PlotMarker {
