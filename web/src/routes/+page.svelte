@@ -1,23 +1,41 @@
 <script lang="ts">
-  import { data } from "./+page";
+	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
+	import { loadIndex, type WasmIndex } from '$lib/gridtopinn';
+
+	let index = $state<WasmIndex | undefined>();
+	let questions = $state<Record<number, string>>({});
+	let error = $state('');
+
+	onMount(async () => {
+		try {
+			const baseUrl = `${base}/wasm`;
+			index = await loadIndex(baseUrl);
+			for (const s of index.steps) {
+				const res = await fetch(`${baseUrl}/${s.manifest}`);
+				if (!res.ok) throw new Error(`GET ${baseUrl}/${s.manifest} 실패: HTTP ${res.status}`);
+				questions[s.step] = ((await res.json()) as { question: string }).question;
+			}
+		} catch (e) {
+			error = e instanceof Error ? e.message : String(e);
+		}
+	});
 </script>
 
-<main style="padding: 2rem; max-width: 800px; margin: 0 auto; font-family: system-ui;">
-  <h1>Grid to PINN — WASM 시험 페이지</h1>
-
-  <section>
-    <h2>상태</h2>
-    <p>{data.status}</p>
-    <p style="color: #666; white-space: pre-wrap;">{data.note}</p>
-  </section>
-
-  <section>
-    <h2>향후 이 페이지에 넣을 내용</h2>
-    <ul>
-      <li>각 단계 WASM을 불러 실행</li>
-      <li>계산 결과 숫자 표시</li>
-      <li>간단한 결과 그림(캔버스/SVG)</li>
-      <li>정답과의 오차·통과 여부 표시</li>
-    </ul>
-  </section>
-</main>
+<svelte:head><title>GridToPINN</title></svelte:head>
+<h1>GridToPINN — 계산 커널 검증 사이트</h1>
+<p>Julia 커널을 WebAssembly로 컴파일해 브라우저에서 그대로 실행합니다. 꾸밈 없는 시험 페이지입니다.</p>
+{#if error}<p class="error" data-testid="error">{error}</p>{/if}
+{#if index}
+	<ul>
+		{#each index.steps as s (s.step)}
+			<li data-testid="step-row">
+				<strong>{s.step}단계 {s.title}</strong> — {questions[s.step] ?? ''}
+				({(s.bytes / 1024).toFixed(1)} KiB) · <a href="{base}/verify#step{s.step}">검증</a>
+			</li>
+		{/each}
+	</ul>
+	<p><a data-testid="verify-link" href="{base}/verify">모든 단계 검증하기</a></p>
+{:else if !error}
+	<p>불러오는 중…</p>
+{/if}

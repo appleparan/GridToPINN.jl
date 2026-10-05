@@ -1,0 +1,1742 @@
+[
+  {
+    "name": "acceleration and top speed",
+    "ops": [
+      {
+        "args": [
+          80.0,
+          600000.0,
+          800.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": 3.4949999999999988,
+        "fn": "acceleration"
+      },
+      {
+        "args": [
+          93.5,
+          600000.0,
+          800.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": -0.010551813168450507,
+        "fn": "acceleration"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": 93.45903743395971,
+        "fn": "top_speed"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "acceleration and top speed",
+    "ops": [
+      {
+        "args": [
+          80.0,
+          600000.0,
+          800.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": 3.494999885559082,
+        "fn": "acceleration"
+      },
+      {
+        "args": [
+          93.5,
+          600000.0,
+          800.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": -0.010552368126809597,
+        "fn": "acceleration"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.8,
+          1.5,
+          0.0
+        ],
+        "expected": 93.45903778076172,
+        "fn": "top_speed"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "DRS run, Euler",
+    "ops": [
+      {
+        "args": [
+          1,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.45903719942912,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 28.749331902475657,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "DRS run, Euler",
+    "ops": [
+      {
+        "args": [
+          1,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.4590072631836,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 28.74938201904297,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "DRS run, RK4",
+    "ops": [
+      {
+        "args": [
+          2,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.4590367512999,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.28112561200357,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "DRS run, RK4",
+    "ops": [
+      {
+        "args": [
+          2,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.4590072631836,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.281139373779297,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "DRS run, adaptive Dormand-Prince",
+    "ops": [
+      {
+        "args": [
+          3,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 26,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 26,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 18.17952031590665,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          10
+        ],
+        "expected": 20.140343465495175,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          20
+        ],
+        "expected": 42.54175942374416,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          26
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          10
+        ],
+        "expected": 89.9922458197074,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          20
+        ],
+        "expected": 93.44821460165132,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          26
+        ],
+        "expected": 93.45903062987503,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.50960643736118,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "DRS run, adaptive Dormand-Prince",
+    "ops": [
+      {
+        "args": [
+          3,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 26,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 26,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 17.953929901123047,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          10
+        ],
+        "expected": 20.153661727905273,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          20
+        ],
+        "expected": 42.50454330444336,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          26
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          10
+        ],
+        "expected": 89.99473571777344,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          20
+        ],
+        "expected": 93.44808197021484,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          26
+        ],
+        "expected": 93.45903015136719,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.517202377319336,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "DRS run, out-of-range method falls back to RK4",
+    "ops": [
+      {
+        "args": [
+          99,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.4590367512999,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.28112561200357,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "DRS run, out-of-range method falls back to RK4",
+    "ops": [
+      {
+        "args": [
+          99,
+          0.5,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          20.0,
+          80.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 161,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 0.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 2.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          161
+        ],
+        "expected": 80.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          161
+        ],
+        "expected": 93.4590072631836,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": 29.281139373779297,
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: Euler with a step far past the stability limit",
+    "ops": [
+      {
+        "args": [
+          1,
+          30.0,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          0.0,
+          300.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 30.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 120.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          11
+        ],
+        "expected": 300.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 117.68163333520849,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": -8253.728923921124,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          11
+        ],
+        "expected": -2.929505730712799e152,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": "Infinity",
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: Euler with a step far past the stability limit",
+    "ops": [
+      {
+        "args": [
+          1,
+          30.0,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          0.0,
+          300.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 30.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 120.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          11
+        ],
+        "expected": 300.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": 117.68161010742188,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": -8253.7255859375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          11
+        ],
+        "expected": "-Infinity",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": "Infinity",
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: RK4 with a step far past the stability limit",
+    "ops": [
+      {
+        "args": [
+          2,
+          30.0,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          0.0,
+          300.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 30.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 120.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          11
+        ],
+        "expected": 300.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083772031492,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": -822.2331609319558,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": "-Infinity",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          11
+        ],
+        "expected": "-Infinity",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": "Infinity",
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: RK4 with a step far past the stability limit",
+    "ops": [
+      {
+        "args": [
+          2,
+          30.0,
+          1.0e-6,
+          600000.0,
+          800.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8,
+          0.0,
+          300.0
+        ],
+        "bind": "tr",
+        "fn": "drs_run"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ts",
+        "fn": "trajectory_t"
+      },
+      {
+        "args": [
+          "$tr"
+        ],
+        "bind": "ys",
+        "fn": "trajectory_y"
+      },
+      {
+        "args": [
+          "$ts"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ys"
+        ],
+        "expected": 11,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$ts",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          2
+        ],
+        "expected": 30.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          5
+        ],
+        "expected": 120.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ts",
+          11
+        ],
+        "expected": 300.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          1
+        ],
+        "expected": 89.86083984375,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          2
+        ],
+        "expected": -822.23095703125,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          5
+        ],
+        "expected": "-Infinity",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$ys",
+          11
+        ],
+        "expected": "-Infinity",
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$tr",
+          93.5,
+          0.9
+        ],
+        "expected": "Infinity",
+        "fn": "settling_time"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f32"
+  }
+]

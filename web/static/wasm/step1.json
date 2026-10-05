@@ -1,0 +1,918 @@
+{
+  "alternatives": [
+    {
+      "arg": "method",
+      "id": "derivative",
+      "options": [
+        {
+          "key": "hand",
+          "label": "손으로 유도",
+          "source": {
+            "file": "src/step1/drs.jl",
+            "lines": [
+              40,
+              46
+            ]
+          },
+          "value": 1
+        },
+        {
+          "key": "forward",
+          "label": "전진차분",
+          "source": {
+            "file": "src/step1/derivatives.jl",
+            "lines": [
+              7,
+              12
+            ]
+          },
+          "value": 2
+        },
+        {
+          "key": "central",
+          "label": "중심차분",
+          "source": {
+            "file": "src/step1/derivatives.jl",
+            "lines": [
+              14,
+              19
+            ]
+          },
+          "value": 3
+        },
+        {
+          "key": "dual",
+          "label": "이중수 자동미분",
+          "source": {
+            "file": "src/step1/derivatives.jl",
+            "lines": [
+              21,
+              26
+            ]
+          },
+          "value": 4
+        }
+      ],
+      "title": "f'(v)를 구하는 방법",
+      "used_by": [
+        "top_speed_iterates",
+        "power_balance_derivative"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "args": [
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "Cd",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        },
+        {
+          "name": "Froll",
+          "type": "real"
+        },
+        {
+          "name": "v0",
+          "type": "real"
+        },
+        {
+          "name": "method",
+          "type": "int"
+        },
+        {
+          "name": "h",
+          "type": "real"
+        }
+      ],
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "Newton 반복값 전체(출발점 v0 포함) [m/s]. method로 f'을 고른다.",
+      "exports": {
+        "f32": "top_speed_iterates_f32",
+        "f64": "top_speed_iterates_f64"
+      },
+      "name": "top_speed_iterates",
+      "returns": "vec",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          55,
+          66
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "Cd",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        },
+        {
+          "name": "Froll",
+          "type": "real"
+        }
+      ],
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "손으로 유도한 f'로 구한 최고속도 [m/s].",
+      "exports": {
+        "f32": "top_speed_f32",
+        "f64": "top_speed_f64"
+      },
+      "name": "top_speed",
+      "returns": "real",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          68,
+          77
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "Cd",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        }
+      ],
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "구름저항 0일 때의 해석해 [m/s].",
+      "exports": {
+        "f32": "top_speed_analytic_f32",
+        "f64": "top_speed_analytic_f64"
+      },
+      "name": "top_speed_analytic",
+      "returns": "real",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          48,
+          53
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        },
+        {
+          "name": "Froll",
+          "type": "real"
+        },
+        {
+          "name": "Cd_closed",
+          "type": "real"
+        },
+        {
+          "name": "Cd_open",
+          "type": "real"
+        }
+      ],
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "DRS를 열었을 때 최고속도 증가량 [m/s].",
+      "exports": {
+        "f32": "drs_gain_f32",
+        "f64": "drs_gain_f64"
+      },
+      "name": "drs_gain",
+      "returns": "real",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          79,
+          86
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "real"
+        },
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "Cd",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        },
+        {
+          "name": "Froll",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "f(v) = ½ρ·Cd·A·v³ + F_구름·v − P [W].",
+      "exports": {
+        "f32": "power_balance_f32",
+        "f64": "power_balance_f64"
+      },
+      "name": "power_balance",
+      "returns": "real",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          32,
+          38
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "real"
+        },
+        {
+          "name": "P",
+          "type": "real"
+        },
+        {
+          "name": "ρ",
+          "type": "real"
+        },
+        {
+          "name": "Cd",
+          "type": "real"
+        },
+        {
+          "name": "A",
+          "type": "real"
+        },
+        {
+          "name": "Froll",
+          "type": "real"
+        },
+        {
+          "name": "method",
+          "type": "int"
+        },
+        {
+          "name": "h",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "f'(v)를 method로 고른 방법으로 구한다.",
+      "exports": {
+        "f32": "power_balance_derivative_f32",
+        "f64": "power_balance_derivative_f64"
+      },
+      "name": "power_balance_derivative",
+      "returns": "real",
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          40,
+          46
+        ]
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "n",
+          "type": "int"
+        }
+      ],
+      "display": null,
+      "doc": "길이 n인 0 벡터를 만든다. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_new_f32",
+        "f64": "vec_new_f64"
+      },
+      "name": "vec_new",
+      "returns": "vec",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        }
+      ],
+      "display": null,
+      "doc": "벡터 길이. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_len_f32",
+        "f64": "vec_len_f64"
+      },
+      "name": "vec_len",
+      "returns": "int",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        },
+        {
+          "name": "i",
+          "type": "int"
+        }
+      ],
+      "display": null,
+      "doc": "v[i], i는 1부터. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_get_f32",
+        "f64": "vec_get_f64"
+      },
+      "name": "vec_get",
+      "returns": "real",
+      "source": null
+    },
+    {
+      "args": [
+        {
+          "name": "v",
+          "type": "vec"
+        },
+        {
+          "name": "i",
+          "type": "int"
+        },
+        {
+          "name": "x",
+          "type": "real"
+        }
+      ],
+      "display": null,
+      "doc": "v[i] = x 하고 x를 돌려준다. (브리지 도우미)",
+      "exports": {
+        "f32": "vec_set_f32",
+        "f64": "vec_set_f64"
+      },
+      "name": "vec_set",
+      "returns": "real",
+      "source": null
+    }
+  ],
+  "limits": [
+    "method가 1~4 밖이면 1(손으로 유도한 f')로 동작한다.",
+    "수렴하지 못하면 예외 없이 마지막 반복값을 돌려주고, f' = 0이면 NaN/Infinity가 나온다.",
+    "Float32는 4eps(Float32) ≈ 4.8e-7 오차 한계에서 수렴 판정이 흔들릴 수 있다."
+  ],
+  "parameters": [
+    {
+      "default": 600000.0,
+      "display": null,
+      "doc": "엔진 출력.",
+      "max": 2.0e6,
+      "min": 1000.0,
+      "name": "P",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          32,
+          38
+        ]
+      },
+      "unit": "W",
+      "used_by": [
+        "top_speed_iterates",
+        "top_speed",
+        "top_speed_analytic",
+        "drs_gain",
+        "power_balance",
+        "power_balance_derivative"
+      ]
+    },
+    {
+      "default": 1.225,
+      "display": null,
+      "doc": "공기 밀도.",
+      "max": 5.0,
+      "min": 0.1,
+      "name": "ρ",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          17,
+          22
+        ]
+      },
+      "unit": "kg/m³",
+      "used_by": [
+        "top_speed_iterates",
+        "top_speed",
+        "top_speed_analytic",
+        "drs_gain",
+        "power_balance",
+        "power_balance_derivative"
+      ]
+    },
+    {
+      "default": 0.9,
+      "display": null,
+      "doc": "항력계수(DRS 닫힘 기준).",
+      "max": 3.0,
+      "min": 0.05,
+      "name": "Cd",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          17,
+          22
+        ]
+      },
+      "unit": "-",
+      "used_by": [
+        "top_speed_iterates",
+        "top_speed",
+        "top_speed_analytic",
+        "power_balance",
+        "power_balance_derivative"
+      ]
+    },
+    {
+      "default": 1.5,
+      "display": null,
+      "doc": "전면 면적.",
+      "max": 5.0,
+      "min": 0.2,
+      "name": "A",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          17,
+          22
+        ]
+      },
+      "unit": "m²",
+      "used_by": [
+        "top_speed_iterates",
+        "top_speed",
+        "top_speed_analytic",
+        "drs_gain",
+        "power_balance",
+        "power_balance_derivative"
+      ]
+    },
+    {
+      "default": 0.0,
+      "display": null,
+      "doc": "구름저항. 0이면 해석해가 정답이 된다.",
+      "max": 20000.0,
+      "min": 0.0,
+      "name": "Froll",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          24,
+          30
+        ]
+      },
+      "unit": "N",
+      "used_by": [
+        "top_speed_iterates",
+        "top_speed",
+        "drs_gain",
+        "power_balance",
+        "power_balance_derivative"
+      ]
+    },
+    {
+      "default": 0.9,
+      "display": null,
+      "doc": "DRS 닫힘 항력계수.",
+      "max": 3.0,
+      "min": 0.05,
+      "name": "Cd_closed",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          79,
+          86
+        ]
+      },
+      "unit": "-",
+      "used_by": [
+        "drs_gain"
+      ]
+    },
+    {
+      "default": 0.8,
+      "display": null,
+      "doc": "DRS 열림 항력계수.",
+      "max": 3.0,
+      "min": 0.05,
+      "name": "Cd_open",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          79,
+          86
+        ]
+      },
+      "unit": "-",
+      "used_by": [
+        "drs_gain"
+      ]
+    },
+    {
+      "default": 50.0,
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "Newton 출발점. 0이면 f'(0) = 0이라 NaN, 너무 멀면 수렴이 느리다.",
+      "max": 1000.0,
+      "min": 0.0,
+      "name": "v0",
+      "presets": [],
+      "source": {
+        "file": "src/step1/newton.jl",
+        "lines": [
+          8,
+          27
+        ]
+      },
+      "unit": "m/s",
+      "used_by": [
+        "top_speed_iterates"
+      ]
+    },
+    {
+      "default": 50.0,
+      "display": {
+        "scale": 3.6,
+        "unit": "km/h"
+      },
+      "doc": "f와 f'을 계산할 속도.",
+      "max": 1000.0,
+      "min": 0.0,
+      "name": "v",
+      "presets": [],
+      "source": {
+        "file": "src/step1/drs.jl",
+        "lines": [
+          32,
+          38
+        ]
+      },
+      "unit": "m/s",
+      "used_by": [
+        "power_balance",
+        "power_balance_derivative",
+        "vec_len",
+        "vec_get",
+        "vec_set"
+      ]
+    },
+    {
+      "default": 0.0001,
+      "display": null,
+      "doc": "유한차분 간격. 너무 크면 절단오차, 너무 작으면 반올림오차(Float32는 더 일찍).",
+      "max": 100.0,
+      "min": 1.0e-12,
+      "name": "h",
+      "presets": [],
+      "source": {
+        "file": "src/step1/derivatives.jl",
+        "lines": [
+          7,
+          12
+        ]
+      },
+      "unit": "m/s",
+      "used_by": [
+        "top_speed_iterates",
+        "power_balance_derivative"
+      ]
+    }
+  ],
+  "precisions": [
+    "f64",
+    "f32"
+  ],
+  "question": "DRS를 열면 최고속도가 얼마나 오르나",
+  "requirements": [
+    "WebAssembly GC를 지원하는 브라우저"
+  ],
+  "schema": 1,
+  "sources": [
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            7,
+            12
+          ],
+          "name": "derivative_forward"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            14,
+            19
+          ],
+          "name": "derivative_central"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            21,
+            26
+          ],
+          "name": "derivative_dual"
+        }
+      ],
+      "file": "src/step1/derivatives.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            17,
+            22
+          ],
+          "name": "drag_force"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            24,
+            30
+          ],
+          "name": "resistance"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            32,
+            38
+          ],
+          "name": "power_balance"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            40,
+            46
+          ],
+          "name": "power_balance_derivative"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            48,
+            53
+          ],
+          "name": "top_speed_analytic"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            55,
+            66
+          ],
+          "name": "top_speed_iterates"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            68,
+            77
+          ],
+          "name": "top_speed"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            79,
+            86
+          ],
+          "name": "drs_gain"
+        }
+      ],
+      "file": "src/step1/drs.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "struct",
+          "lines": [
+            7,
+            16
+          ],
+          "name": "Dual"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            19,
+            19
+          ],
+          "name": "Base.:+"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            20,
+            20
+          ],
+          "name": "Base.:+"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            21,
+            21
+          ],
+          "name": "Base.:+"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            22,
+            22
+          ],
+          "name": "Base.:-"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            23,
+            23
+          ],
+          "name": "Base.:-"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            24,
+            24
+          ],
+          "name": "Base.:-"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            25,
+            25
+          ],
+          "name": "Base.:-"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            28,
+            28
+          ],
+          "name": "Base.:*"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            29,
+            29
+          ],
+          "name": "Base.:*"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            30,
+            30
+          ],
+          "name": "Base.:*"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            33,
+            34
+          ],
+          "name": "Base.:/"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            35,
+            35
+          ],
+          "name": "Base.:/"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            36,
+            37
+          ],
+          "name": "Base.:/"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            40,
+            42
+          ],
+          "name": "Base.:^"
+        }
+      ],
+      "file": "src/step1/dual.jl"
+    },
+    {
+      "definitions": [
+        {
+          "kind": "function",
+          "lines": [
+            8,
+            27
+          ],
+          "name": "newton_iterates"
+        },
+        {
+          "kind": "function",
+          "lines": [
+            29,
+            36
+          ],
+          "name": "newton"
+        }
+      ],
+      "file": "src/step1/newton.jl"
+    }
+  ],
+  "step": 1,
+  "title": "미분과 Newton법",
+  "wasm": "step1.wasm"
+}

@@ -1,5 +1,11 @@
 # 1단계 검증 보고서 — WasmTarget.jl 툴체인
 
+> **이 문서는 과거 기록입니다 (2026-10-05 대체됨).** 아래의 "함수 인자 미지원", "기본 인자 미지원"
+> 결론과 "WASM 전용 래퍼" 패턴은 더 이상 유효하지 않습니다. 파일 경로(`scripts/build_wasm.jl`,
+> `src/step1_wasm.jl`)와 성능 추정치도 현재 저장소와 다릅니다. 현재 구조와 다시 확인한 결과는
+> [2026-10-05-architecture-refactor.md](2026-10-05-architecture-refactor.md)와
+> [../calling-convention.md](../calling-convention.md)를 보십시오.
+
 **작성일**: 2026-10-04  
 **확인 시점 WasmTarget.jl 문서 URL**: https://grouptherapyorg.github.io/WasmTarget.jl/manual/  
 **WasmTarget.jl 버전**: v0.5.3 (2026년 6월 22일 discourse 업데이트 기준)  

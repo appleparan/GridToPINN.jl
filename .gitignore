@@ -148,3 +148,20 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 .claude/
+
+# Claude Code worktrees
+# (.claude/ is listed above)
+
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+/wasm/Manifest.toml
+
+
+# Test output
+test-results/
+playwright-report/
+
+# SvelteKit static output
+/web/build/

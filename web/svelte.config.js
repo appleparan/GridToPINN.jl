@@ -1,18 +1,12 @@
-import adapter from "@sveltejs/adapter-static";
-import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from '@sveltejs/adapter-static';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
-const config = {
-  preprocess: vitePreprocess(),
-  kit: {
-    adapter: adapter({
-      pages: "dist",
-      assets: "dist",
-      fallback: "index.html",
-      precompress: false,
-      strict: true,
-    }),
-  },
+export default {
+	preprocess: vitePreprocess(),
+	kit: {
+		adapter: adapter({ pages: 'build', assets: 'build', fallback: undefined, strict: true }),
+		// 하위 경로 배포: BASE_PATH=/sub bun run build
+		paths: { base: process.env.BASE_PATH ?? '' }
+	}
 };
-
-export default config;

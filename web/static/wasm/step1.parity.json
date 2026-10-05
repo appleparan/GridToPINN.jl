@@ -1,0 +1,1136 @@
+[
+  {
+    "name": "closed-form values",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0
+        ],
+        "expected": 89.86083772031492,
+        "fn": "top_speed"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          500.0
+        ],
+        "expected": 87.61826793078689,
+        "fn": "top_speed"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5
+        ],
+        "expected": 89.86083772031492,
+        "fn": "top_speed_analytic"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8
+        ],
+        "expected": 3.5981997136447887,
+        "fn": "drs_gain"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0
+        ],
+        "expected": -496640.625,
+        "fn": "power_balance"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "closed-form values",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0
+        ],
+        "expected": 89.86083984375,
+        "fn": "top_speed"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          500.0
+        ],
+        "expected": 87.61827087402344,
+        "fn": "top_speed"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5
+        ],
+        "expected": 89.86083984375,
+        "fn": "top_speed_analytic"
+      },
+      {
+        "args": [
+          600000.0,
+          1.225,
+          1.5,
+          0.0,
+          0.9,
+          0.8
+        ],
+        "expected": 3.5981979370117188,
+        "fn": "drs_gain"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0
+        ],
+        "expected": -496640.625,
+        "fn": "power_balance"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "f'(v) by every method, plus out-of-range fallback",
+    "ops": [
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          1,
+          0.0001
+        ],
+        "expected": 6301.5625,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          2,
+          0.0001
+        ],
+        "expected": 6301.574903191067,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          3,
+          0.0001
+        ],
+        "expected": 6301.5625000116415,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          4,
+          0.0001
+        ],
+        "expected": 6301.5625,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          99,
+          0.0001
+        ],
+        "expected": 6301.5625,
+        "fn": "power_balance_derivative"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "f'(v) by every method, plus out-of-range fallback",
+    "ops": [
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          1,
+          0.0001
+        ],
+        "expected": 6301.56298828125,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          2,
+          0.0001
+        ],
+        "expected": 6250.0,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          3,
+          0.0001
+        ],
+        "expected": 6250.0,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          4,
+          0.0001
+        ],
+        "expected": 6301.5625,
+        "fn": "power_balance_derivative"
+      },
+      {
+        "args": [
+          50.0,
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          100.0,
+          99,
+          0.0001
+        ],
+        "expected": 6301.56298828125,
+        "fn": "power_balance_derivative"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "Newton iterates, hand f'",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          1,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 8,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 130.08314436885865,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.04733581193877,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "Newton iterates, hand f'",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          1,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 7,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 130.0831298828125,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.04733276367188,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "Newton iterates, forward difference",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 9,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 130.08298420323973,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.0473359646195,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "Newton iterates, forward difference",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 8,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 129.46249389648438,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.15618133544922,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "Newton iterates, central difference",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          3,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 9,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 130.08314436615268,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.04733581220594,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "Newton iterates, central difference",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          3,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 8,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 129.46249389648438,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 91.1697998046875,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "Newton iterates, dual numbers",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          500.0,
+          50.0,
+          4,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 8,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 120.3777104220098,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 88.2541694848799,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "Newton iterates, dual numbers",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          500.0,
+          50.0,
+          4,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 7,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 120.3777084350586,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 88.2541732788086,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: start at v0 = 0 (f' = 0)",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          0.0,
+          1,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 2,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": "Infinity",
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: start at v0 = 0 (f' = 0)",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          0.0,
+          1,
+          0.0001
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 2,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": "Infinity",
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: forward difference with h = 0",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          0.0
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 2,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: forward difference with h = 0",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          0.0
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 2,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": "NaN",
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: central difference with h below Float32 resolution",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          3,
+          1.0e-8
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 9,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 130.08316878752044,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: central difference with h below Float32 resolution",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          3,
+          1.0e-8
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 2,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": "Infinity",
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "BREAK: huge h",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          100.0
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 51,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 68.48072562358277,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 82.60097737571951,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "BREAK: huge h",
+    "ops": [
+      {
+        "args": [
+          600000.0,
+          1.225,
+          0.9,
+          1.5,
+          0.0,
+          50.0,
+          2,
+          100.0
+        ],
+        "bind": "it",
+        "fn": "top_speed_iterates"
+      },
+      {
+        "args": [
+          "$it"
+        ],
+        "expected": 28,
+        "fn": "vec_len"
+      },
+      {
+        "args": [
+          "$it",
+          1
+        ],
+        "expected": 50.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          2
+        ],
+        "expected": 68.48072814941406,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$it",
+          4
+        ],
+        "expected": 82.6009750366211,
+        "fn": "vec_get"
+      }
+    ],
+    "precision": "f32"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f64"
+  },
+  {
+    "name": "vector bridge",
+    "ops": [
+      {
+        "args": [
+          4
+        ],
+        "bind": "v",
+        "fn": "vec_new"
+      },
+      {
+        "args": [
+          "$v",
+          2,
+          3.5
+        ],
+        "expected": 3.5,
+        "fn": "vec_set"
+      },
+      {
+        "args": [
+          "$v",
+          2
+        ],
+        "expected": 3.5,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v",
+          3
+        ],
+        "expected": 0.0,
+        "fn": "vec_get"
+      },
+      {
+        "args": [
+          "$v"
+        ],
+        "expected": 4,
+        "fn": "vec_len"
+      }
+    ],
+    "precision": "f32"
+  }
+]
