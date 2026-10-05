@@ -164,3 +164,6 @@ vite.config.ts.timestamp-*
 # Test output
 test-results/
 playwright-report/
+
+# SvelteKit static output
+/web/build/
