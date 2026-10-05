@@ -174,3 +174,14 @@
 .verify-page label {
 	margin-right: 1rem;
 }
+
+/* shiki: colors come from CSS variables so the code follows the theme without re-highlighting */
+.shiki,
+.shiki span {
+	color: var(--shiki-light);
+	background: transparent;
+}
+.dark .shiki,
+.dark .shiki span {
+	color: var(--shiki-dark);
+}

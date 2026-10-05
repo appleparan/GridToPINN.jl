@@ -13,6 +13,7 @@ export function ensureIndex(baseUrl: string): Promise<void> {
 	pending ??= loadIndex(baseUrl).then(
 		(index) => {
 			wasmIndex.value = index;
+			wasmIndex.error = '';
 		},
 		(e: unknown) => {
 			wasmIndex.error = e instanceof Error ? e.message : String(e);
