@@ -45,14 +45,17 @@ end
 """
 function integrate(step, f, y0, t0::T, t_end::T, Δt::T) where {T<:AbstractFloat}
     nsteps = max(1, round(Int, (t_end - t0) / Δt))
-    ts = T[t0]
-    ys = typeof(y0)[y0]
+    # 걸음 수를 미리 알므로 한 번에 잡는다. (push!는 WASM에서 걸음마다 복사해 O(n²)가 된다)
+    ts = Vector{T}(undef, nsteps + 1)
+    ys = Vector{typeof(y0)}(undef, nsteps + 1)
+    ts[1] = t0
+    ys[1] = y0
     y = y0
     for i in 1:nsteps
         t = t0 + (i - 1) * Δt
         y = step(f, y, t, Δt)
-        push!(ts, t0 + i * Δt)
-        push!(ys, y)
+        ts[i + 1] = t0 + i * Δt
+        ys[i + 1] = y
     end
     return Trajectory(ts, ys)
 end
