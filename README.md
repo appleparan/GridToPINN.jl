@@ -93,8 +93,9 @@ bun run build       # 사이트 빌드 → web/build/
 다시 빌드하는 것을 잊으면 CI의 `julia --project=wasm wasm/build.jl --check`가 실패합니다.
 
 하위 경로에 올릴 때는 `BASE_PATH=/경로 bun run build`로 빌드합니다.
-CI(`.github/workflows/ci.yml`)는 push와 PR마다 네이티브 테스트, 산출물 검사, 일치 검사, 웹 검사, e2e를
-돌리고, 커밋된 산출물이 소스와 맞는지 확인하고, 빌드한 사이트를 `site` 아티팩트로 올립니다. 호스팅으로 내보내는 단계는 아직 없습니다.
+CI(`.github/workflows/ci.yml`)는 push와 PR마다 네이티브 테스트, 산출물 검사, 일치 검사, 웹 검사, e2e를 돌립니다.
+`main`에 push되면 모든 검사가 통과한 뒤 빌드한 사이트를 GitHub Pages로 내보냅니다.
+주소는 <https://grid-to-pinn.liam.kim>입니다. 사용자 지정 도메인은 저장소의 Pages 설정에 있습니다.
 
 ## 새 단계를 추가하는 방법
 

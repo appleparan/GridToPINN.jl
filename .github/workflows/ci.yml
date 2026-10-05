@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -55,15 +56,17 @@ jobs:
         working-directory: web
         run: bun run test:e2e
 
-      # 4) The deployable static site (base path '/'), .wasm included.
+      # 4) The deployable static site, .wasm included. It is served from the root of
+      #    https://grid-to-pinn.liam.kim, so the base path is empty.
       - name: Build site
         working-directory: web
         run: bun run build
-      - uses: actions/upload-artifact@v4
+        env:
+          BASE_PATH: ''
+      - name: Upload site for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: site
           path: web/build
-          if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -71,3 +74,22 @@ jobs:
           name: e2e-screenshots
           path: web/test-results/screenshots
           if-no-files-found: ignore
+
+  # Publish to GitHub Pages (custom domain grid-to-pinn.liam.kim, set in the repository's
+  # Pages settings). Runs only for main, and only after every check above passed.
+  deploy:
+    needs: build-and-verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
