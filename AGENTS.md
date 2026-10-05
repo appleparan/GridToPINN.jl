@@ -99,6 +99,8 @@ Julia 패키지와 웹 프로젝트가 한 저장소에 나란히 있는 구조.
 - `wasm/`: 빌드 환경. `wasm/entries/stepN.jl`이 내보내기, 조작 값, 대안 지점, 일치 검사 사례를 선언하고 `wasm/build.jl`이 `web/static/wasm/`에 산출물을 씀 (git에 넣지 않음).
 - `web/`: SvelteKit 정적 사이트. 연결 모듈은 `web/src/lib/gridtopinn/`, 검증 페이지는 `/verify`.
 
+**단위 규칙**: 커널과 WASM 인자는 SI(m/s). 자동차 속도는 화면에서 km/h로 보이도록 선언에 `display = KMH`를 붙임 (목록 파일의 `display.scale = 3.6`).
+
 **진입점 규칙**: `wasm/entries/`의 함수는 타입을 고정하고 대안 번호를 커널 함수로 바꾸는 일만 함. 수치 코드를 넣지 않음. 커널이 컴파일되지 않으면 커널을 고침.
 
 **검사 명령** (단계를 끝내기 전에 모두 통과해야 함):

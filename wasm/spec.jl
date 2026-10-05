@@ -18,7 +18,14 @@ struct Export
     returns::String                               # real | int | vec | ref:<Name> | none
     doc::String
     source::String                                # 커널 정의 이름 (위치는 파싱해서 찾는다)
+    display::Union{Nothing,Pair{String,Float64}}  # 반환값을 화면에 보일 단위 (없으면 그대로)
 end
+
+# 화면 표시 단위. 계산은 SI(m/s)로 하고(P = F·v가 그대로 성립해야 한다),
+# 화면만 `표시값 = 값 × scale`로 바꿔 보여준다. 자동차 속도는 km/h가 읽기 쉽다.
+const KMH = "km/h" => 3.6
+display_dict(::Nothing) = nothing
+display_dict(d::Pair) = Dict("unit" => first(d), "scale" => last(d))
 
 """조작 가능한 값. `source`는 그 값이 쓰이는 커널 정의 이름."""
 struct Param
@@ -30,6 +37,7 @@ struct Param
     doc::String
     source::String
     presets::Vector{Pair{String,Float64}}
+    display::Union{Nothing,Pair{String,Float64}}  # 화면에 보일 단위 (없으면 unit 그대로)
 end
 
 struct Option
@@ -83,10 +91,10 @@ parse_args(s::AbstractString) = [
 ]
 partition(s, c) = (i = findfirst(c, s)) === nothing ? (s, "", "") : (s[1:prevind(s, i)], string(c), s[nextind(s, i):end])
 
-Export(name, fn, args::AbstractString, returns, source, doc) =
-    Export(name, fn, parse_args(args), returns, doc, source)
-Param(name, unit, default, min, max, source, doc; presets = Pair{String,Float64}[]) =
-    Param(name, unit, default, min, max, doc, source, presets)
+Export(name, fn, args::AbstractString, returns, source, doc; display = nothing) =
+    Export(name, fn, parse_args(args), returns, doc, source, display)
+Param(name, unit, default, min, max, source, doc; presets = Pair{String,Float64}[], display = nothing) =
+    Param(name, unit, default, min, max, doc, source, presets, display)
 
 # ── 컴파일 목록 ──────────────────────────────────────────────────────────────
 
@@ -208,6 +216,7 @@ function build_manifest(spec::StepSpec, index)
         "exports" => Dict(sfx => "$(e.name)_$sfx" for (sfx, _) in PRECISIONS),
         "args" => [Dict("name" => n, "type" => t) for (n, t) in e.args],
         "returns" => e.returns, "doc" => e.doc, "source" => track(e.source),
+        "display" => display_dict(e.display),
     ) for e in all_exports(spec)]
 
     parameters = [Dict(
@@ -216,6 +225,7 @@ function build_manifest(spec::StepSpec, index)
         "used_by" => [e.name for e in all_exports(spec) if any(first(a) == p.name for a in e.args)],
         "source" => track(p.source),
         "presets" => [Dict("label" => k, "value" => v) for (k, v) in p.presets],
+        "display" => display_dict(p.display),
     ) for p in spec.parameters]
 
     alternatives = [Dict(

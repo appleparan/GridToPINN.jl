@@ -90,7 +90,12 @@ test('verify page: parity, alternatives, plots, worker frames', async ({ page })
 	await expect(alts.first()).toContainText('power_balance_derivative');
 
 	// 3) 그림: 1, 2단계 canvas, 3단계 라이브 canvas에 색 있는 픽셀이 있다
-	await expect(page.getByTestId('plot-note-1')).toContainText('해석해', { timeout: 30_000 });
+	// 속도는 화면에서 km/h로 보인다 (계산은 m/s, 목록 파일의 display.scale = 3.6으로 바꿔 표시)
+	const note1 = page.getByTestId('plot-note-1');
+	await expect(note1).toContainText('닫힘 323.5 km/h', { timeout: 30_000 });
+	await expect(note1).toContainText('열림 336.5 km/h');
+	await expect(note1).toContainText('DRS 이득 13.0 km/h');
+	await expect(page.getByTestId('param-row').filter({ hasText: /^v0/ }).first()).toContainText('km/h');
 	await expect(page.getByTestId('plot-note-2')).toContainText('적응형', { timeout: 30_000 });
 	await expect(page.getByTestId('step3-status')).toHaveText('완료', { timeout: 30_000 });
 	await expect(page.getByTestId('frame-counter')).toHaveText('30');

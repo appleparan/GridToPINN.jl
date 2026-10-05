@@ -25,8 +25,15 @@ export interface FnArg {
 	name: string;
 	type: string;
 }
+/** 화면 표시 단위: 표시값 = 값 × scale. 계산과 WASM 인자는 항상 SI다. */
+export interface DisplayUnit {
+	unit: string;
+	scale: number;
+}
 export interface FnSpec {
 	name: string;
+	/** 반환값의 표시 단위 (없으면 그대로 보인다) */
+	display?: DisplayUnit | null;
 	exports: Record<Precision, string>;
 	args: FnArg[];
 	returns: string;
@@ -41,6 +48,8 @@ export interface ParamSpec {
 	max: number;
 	doc: string;
 	used_by: string[];
+	/** 표시 단위 (없으면 unit 그대로 보인다) */
+	display?: DisplayUnit | null;
 	source?: SourceRange;
 }
 export interface AltOption {

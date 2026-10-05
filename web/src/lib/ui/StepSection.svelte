@@ -81,10 +81,11 @@
 
 		<h3>조작 값</h3>
 		<table>
-			<thead><tr><th>이름</th><th>단위</th><th>기본값</th><th>범위</th></tr></thead>
+			<thead><tr><th>이름</th><th>화면 단위</th><th>기본값</th><th>범위</th><th>계산 단위 (WASM 인자)</th></tr></thead>
 			<tbody>
 				{#each step.manifest.parameters as p (p.name)}
-					<tr data-testid="param-row"><td>{p.name}</td><td>{p.unit}</td><td>{p.default}</td><td>{p.min} ~ {p.max}</td></tr>
+					{@const k = p.display?.scale ?? 1}
+					<tr data-testid="param-row"><td>{p.name}</td><td>{p.display?.unit ?? p.unit}</td><td>{+(p.default * k).toPrecision(6)}</td><td>{+(p.min * k).toPrecision(6)} ~ {+(p.max * k).toPrecision(6)}</td><td>{p.unit}</td></tr>
 				{/each}
 			</tbody>
 		</table>

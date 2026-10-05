@@ -42,6 +42,22 @@ const v = readVector(step, step.fn('trajectory_y', 'f64')(tr), 'f64');         /
 | `vec` | `Vector{T}` | 불투명한 참조. `readVector`, `writeVector`로 읽고 쓴다 |
 | `ref:<이름>` | 구조체 (`Trajectory`, `Diffusion1D`) | 불투명한 참조. 같은 모듈의 함수에 다시 넘긴다 |
 
+## 단위
+
+계산과 WASM 인자, 반환값은 모두 SI입니다(속도는 m/s). 출력 = 힘 × 속도 같은 식이 그대로 성립해야 하기
+때문입니다. 자동차 속도는 화면에서 km/h로 보여줍니다. 목록 파일이 해당 조작 값과 함수에
+`"display": { "unit": "km/h", "scale": 3.6 }`을 붙이며, 규칙은 `표시값 = 값 × scale`입니다.
+화면에서 받은 값은 `scale`로 나눠 WASM에 넘깁니다. `display`가 `null`이면 `unit` 그대로 보여줍니다.
+
+| 값 | 계산 (m/s) | 화면 (km/h) |
+|---|---|---|
+| 닫힘 최고속도 | 89.86 | 323.5 |
+| 열림 최고속도 | 93.46 | 336.5 |
+| DRS 이득 | 3.60 | 13.0 |
+
+`display`가 붙는 것은 1단계 `v0`, `v`, `top_speed*`, `drs_gain`, `top_speed_iterates`와 2단계 `v`,
+`v_final`, `trajectory_y`, `top_speed`입니다. 3단계의 벽 속도 `U`는 m/s 그대로입니다.
+
 참조는 만든 모듈, 만든 정밀도의 함수에만 넘길 수 있습니다. Float64로 만든 `sim`을 `_f32` 함수에
 넘기면 예외가 납니다.
 
@@ -122,13 +138,13 @@ for (let k = 0; k < 30; k++) {
     "exports": { "f64": "advance_f64", "f32": "advance_f32" },
     "args": [{ "name": "sim", "type": "ref:Diffusion1D" }, { "name": "Δt", "type": "real" },
              { "name": "nsteps", "type": "int" }, { "name": "method", "type": "int" }],
-    "returns": "real", "doc": "…",
+    "returns": "real", "doc": "…", "display": null,
     "source": { "file": "src/step3/simulation.jl", "lines": [64, 75] }
   }],
   "parameters": [{
     "name": "ν", "unit": "m²/s", "default": 1e-6, "min": 1e-9, "max": 0.1, "doc": "…",
     "presets": [{ "label": "물", "value": 1e-6 }, { "label": "꿀", "value": 2e-3 }],
-    "used_by": ["moving_wall", "stokes_first_solution", "diffusion_depth"],
+    "used_by": ["moving_wall", "stokes_first_solution", "diffusion_depth"], "display": null,
     "source": { "file": "src/step3/simulation.jl", "lines": [19, 28] }
   }],
   "alternatives": [{

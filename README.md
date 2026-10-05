@@ -94,6 +94,7 @@ bun run dev         # 개발 서버. /verify 에서 눈으로 확인
 - 배열은 JS에서 값을 하나씩 꺼냅니다. 비용은 [docs/calling-convention.md](docs/calling-convention.md)의
   측정표를 보십시오.
 - 차량 수치(600 kW, 800 kg, Cd 0.9/0.8 등)는 대표값으로 정한 가정이며 실제 차량 값이 아닙니다.
+- 계산은 SI(m/s)로 하고 자동차 속도는 화면에서만 km/h로 보여줍니다. 닫힘 323.5 km/h, 열림 336.5 km/h입니다.
 
 ## 출처
 
