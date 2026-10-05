@@ -17,7 +17,7 @@
 		}}
 		aria-label="정밀도"
 	>
-		<ToggleGroup.Item value="f64" data-testid="precision-f64" class="num px-3">Float64</ToggleGroup.Item>
-		<ToggleGroup.Item value="f32" data-testid="precision-f32" class="num px-3">Float32</ToggleGroup.Item>
+		<ToggleGroup.Item value="f64" data-testid="precision-f64" class="num px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:font-semibold data-[state=on]:hover:bg-primary/90">Float64</ToggleGroup.Item>
+		<ToggleGroup.Item value="f32" data-testid="precision-f32" class="num px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:font-semibold data-[state=on]:hover:bg-primary/90">Float32</ToggleGroup.Item>
 	</ToggleGroup.Root>
 </div>

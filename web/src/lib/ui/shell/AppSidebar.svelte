@@ -42,7 +42,6 @@
 									data-step={s.step}
 									data-available={available}
 									aria-current={isActive ? 'page' : undefined}
-					data-active={isActive ? '' : undefined}
 									onclick={() => sidebar.setOpenMobile(false)}
 								>
 									<span class="mt-0.5 shrink-0">

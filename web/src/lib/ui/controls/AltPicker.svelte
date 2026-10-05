@@ -21,7 +21,7 @@
 		aria-label={alt.title}
 	>
 		{#each alt.options as o (o.key)}
-			<ToggleGroup.Item value={o.key} data-testid="alt-option-{o.key}" class="px-3">{o.label}</ToggleGroup.Item>
+			<ToggleGroup.Item value={o.key} data-testid="alt-option-{o.key}" class="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:font-semibold data-[state=on]:hover:bg-primary/90">{o.label}</ToggleGroup.Item>
 		{/each}
 	</ToggleGroup.Root>
 </div>

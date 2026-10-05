@@ -134,7 +134,7 @@
 				})
 			],
 			cursor: { drag: { x: false, y: false } },
-			legend: { live: true },
+			legend: { show: false },
 			hooks: {
 				draw: [
 					(u: uPlotType) => {
@@ -167,6 +167,15 @@
 		const U = UPlot;
 		const el = root;
 		if (!U || !el) return;
+		if (series.length === 0) {
+			// nothing to draw (e.g. the first compute failed): keep the root mounted, drop any stale chart
+			untrack(() => {
+				plot?.destroy();
+				plot = undefined;
+				builtKey = '';
+			});
+			return;
+		}
 		const theme = themeTick;
 		const key = [theme, logY, xLabel, yLabel, height, ...series.map((s) => `${s.label}|${s.role}|${s.points}|${s.dashed}`)].join(
 			'\n'
@@ -197,31 +206,29 @@
 	});
 </script>
 
-<div bind:this={root} class="lineplot w-full" data-testid="plot" data-points={pointCount}></div>
+<div class="lineplot w-full" data-testid="plot" data-points={pointCount}>
+	<div bind:this={root} class="w-full"></div>
+	{#if series.length > 0}
+		<ul class="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs" aria-label="범례">
+			{#each series as s (s.label)}
+				<li class="flex items-center gap-1.5" class:text-foreground={s.role === 'primary'} class:font-medium={s.role === 'primary'}>
+					<svg width="18" height="8" aria-hidden="true">
+						<line
+							x1="1" y1="4" x2="17" y2="4"
+							stroke="var({ROLE_VAR[s.role]})"
+							stroke-width={s.role === 'primary' ? 2.5 : 1.75}
+							stroke-dasharray={s.dashed ? '4 3' : undefined}
+							stroke-linecap="round"
+						/>
+					</svg>
+					{s.label}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</div>
 
 <style>
-	.lineplot :global(.u-legend) {
-		font-size: 0.75rem;
-		text-align: left;
-		margin-top: 0.5rem;
-		color: var(--muted-foreground);
-	}
-	.lineplot :global(.u-legend .u-series:first-child) {
-		display: none;
-	}
-	.lineplot :global(.u-legend .u-series) {
-		padding: 2px 8px 2px 0;
-	}
-	.lineplot :global(.u-legend .u-value) {
-		font-family: var(--font-mono);
-		font-variant-numeric: tabular-nums;
-	}
-	.lineplot :global(.uplot:not(:hover) .u-legend .u-value) {
-		display: none;
-	}
-	.lineplot :global(.u-legend .u-marker) {
-		border-radius: 2px;
-	}
 	.lineplot :global(.u-select) {
 		background: transparent;
 	}

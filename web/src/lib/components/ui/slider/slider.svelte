@@ -7,7 +7,7 @@
 		value = $bindable(),
 		orientation = "horizontal",
 		class: className,
-		thumbLabel,
+		thumbLabel, // local patch: aria-label for the thumb (not in the generated component)
 		...restProps
 	}: WithoutChildrenOrChild<SliderPrimitive.RootProps> & { thumbLabel?: string } = $props();
 </script>
@@ -22,7 +22,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 	data-slot="slider"
 	{orientation}
 	class={cn(
-		"data-[orientation=vertical]:min-h-40 relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
+		"data-vertical:min-h-40 relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:w-auto data-vertical:flex-col",
 		className
 	)}
 	{...restProps}
@@ -32,13 +32,13 @@ get along, so we shut typescript up by casting `value` to `never`.
 			data-slot="slider-track"
 			data-orientation={orientation}
 			class={cn(
-				"bg-muted rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5 relative grow overflow-hidden data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full"
+				"bg-muted rounded-full data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5 relative grow overflow-hidden data-horizontal:w-full data-vertical:h-full"
 			)}
 		>
 			<SliderPrimitive.Range
 				data-slot="slider-range"
 				class={cn(
-					"bg-primary absolute select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+					"bg-primary absolute select-none data-horizontal:h-full data-vertical:w-full"
 				)}
 			/>
 		</span>

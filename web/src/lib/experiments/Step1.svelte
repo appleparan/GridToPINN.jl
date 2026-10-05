@@ -21,6 +21,7 @@
 	const alt = $derived(m.alternatives.find((a) => a.id === cfg.alternative)!);
 	const rho = $derived(defaultOf(m, 'ρ'));
 	const area = $derived(defaultOf(m, 'A'));
+	const gainUnit = $derived(m.functions.find((f) => f.name === 'drs_gain')?.display ?? { unit: 'm/s', scale: 1 });
 	const kmh = $derived(m.functions.find((f) => f.name === 'top_speed_iterates')?.display ?? { unit: 'm/s', scale: 1 });
 
 	// svelte-ignore state_referenced_locally
@@ -168,7 +169,7 @@
 			<div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 xl:grid-cols-3">
 				<Readout key="v-closed" label="DRS 닫힘 최고속도" value={display.vClosed * kmh.scale} unit={kmh.unit} />
 				<Readout key="v-open" label="DRS 열림 최고속도" value={display.vOpen * kmh.scale} unit={kmh.unit} />
-				<Readout key="gain" label="DRS 이득" value={display.gain * kmh.scale} unit={kmh.unit} />
+				<Readout key="gain" label="DRS 이득" value={display.gain * gainUnit.scale} unit={gainUnit.unit} />
 				<Readout key="iterations" label="반복 횟수" value={display.iterations} />
 				<Readout key="rel-error" label="기준값과의 상대 오차" value={display.relError} />
 			</div>
