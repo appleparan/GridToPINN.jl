@@ -9,6 +9,7 @@
 		yLabel,
 		logY = false,
 		markers = [],
+		yRange,
 		height = 320
 	}: {
 		series: PlotSeries[];
@@ -16,6 +17,8 @@
 		yLabel: string;
 		logY?: boolean;
 		markers?: PlotMarker[];
+		/** Fixed y window; series outside it are clipped. Default: fit to all series. */
+		yRange?: { min: number; max: number };
 		height?: number;
 	} = $props();
 
@@ -106,7 +109,10 @@
 		return {
 			width,
 			height,
-			scales: { x: { time: false }, y: logY ? { distr: 3 } : {} },
+			scales: { x: { time: false }, y: logY ? { distr: 3 } : {
+							range: (_u: uPlotType, lo: number, hi: number): uPlotType.Range.MinMax =>
+								yRange ? [yRange.min, yRange.max] : U.rangeNum(lo, hi, 0.1, true)
+						} },
 			axes: [
 				{ ...axisBase, label: xLabel, labelSize: 22 },
 				{
@@ -153,7 +159,13 @@
 							ctx.moveTo(cx, u.bbox.top);
 							ctx.lineTo(cx, u.bbox.top + u.bbox.height);
 							ctx.stroke();
-							ctx.fillText(m.label, cx + 4 * dpr, u.bbox.top + 12 * dpr);
+							// Bottom of the plot area: curves and reference lines usually run along the top.
+							const w = ctx.measureText(m.label).width;
+							const flip = cx + 4 * dpr + w > u.bbox.left + u.bbox.width;
+							ctx.setLineDash([]);
+							ctx.textAlign = flip ? 'right' : 'left';
+							ctx.fillText(m.label, cx + (flip ? -4 : 4) * dpr, u.bbox.top + u.bbox.height - 6 * dpr);
+							ctx.setLineDash([4 * dpr, 4 * dpr]);
 						}
 						ctx.restore();
 					}
