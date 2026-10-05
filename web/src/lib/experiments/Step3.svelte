@@ -46,7 +46,7 @@
 	// It is kept and drawn when the run leaves 'paused' (resume, or it was the final / diverged frame).
 	let late: { f: Frame; plan: RunPlan } | undefined;
 	function onFrame(f: Frame, plan: RunPlan) {
-		if (runner.status === 'paused') {
+		if (runner.status === 'paused' && runner.frame < (plan as Plan3).frames) {
 			late = { f, plan };
 			return;
 		}

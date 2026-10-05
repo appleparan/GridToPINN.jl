@@ -1,3 +1,5 @@
+import { onMount } from 'svelte';
+
 // Wall-clock playback of an already computed result. Display only: it advances a number from 0 to 1;
 // the experiment maps that number onto the kernel-computed samples.
 export type PlaybackStatus = 'playing' | 'paused' | 'done';
@@ -47,6 +49,7 @@ export function createPlayback(
 		schedule(tick);
 	}
 	function begin(from: number) {
+		if (disposed) return;
 		base = from;
 		progress = from;
 		startedAt = now();
@@ -90,4 +93,34 @@ export function createPlayback(
 			disposed = true;
 		}
 	};
+}
+
+/**
+ * Component-level wiring shared by the playing experiments (call during component init):
+ * starts the playback on mount (finished at once under prefers-reduced-motion), restarts it once the
+ * controls have been still for `restartMs`, and disposes it on unmount.
+ * `controls` must read every value whose change should restart the playback.
+ */
+export function autoPlayback(playback: Playback, controls: () => unknown, restartMs = 200): void {
+	let reduced = false;
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const start = () => (reduced ? playback.finish() : playback.restart());
+	onMount(() => {
+		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		start();
+		return () => {
+			clearTimeout(timer);
+			playback.dispose();
+		};
+	});
+	let seen = false;
+	$effect(() => {
+		controls();
+		if (!seen) {
+			seen = true;
+			return;
+		}
+		clearTimeout(timer);
+		timer = setTimeout(start, restartMs);
+	});
 }

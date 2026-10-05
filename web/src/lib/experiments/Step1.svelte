@@ -14,7 +14,7 @@
 	import Verdict from '$lib/ui/Verdict.svelte';
 	import PlaybackControls from '$lib/ui/PlaybackControls.svelte';
 	import { EXPERIMENTS, PASS, defaultOf, findParam, initialValues } from './config';
-	import { createPlayback } from './playback.svelte';
+	import { autoPlayback, createPlayback } from './playback.svelte';
 	import { revealCount } from './reveal';
 
 	let { step }: { step: Step } = $props();
@@ -86,17 +86,21 @@
 			const relError = Math.abs(vClosed - ref) / ref;
 
 			// The selected method is drawn twice: the full curve as ghost, then the bright curve (revealed
-			// by playback, see `series` below). Plot order follows the option order.
-			const series: PlotSeries[] = alt.options.flatMap((o): PlotSeries[] => {
+			// by playback, see `series` below). Draw order: ghost, muted curves, bright curve, so nothing
+			// covers the selected one; `order` keeps the legend in option order.
+			const curve = (o: (typeof alt.options)[number]) => {
 				const it = its[o.key];
-				const x = Array.from(it, (_, i) => i);
-				const y = Array.from(it, (u) => Math.abs(u - ref) * kmh.scale);
-				if (o.key !== selected.key) return [{ label: o.label, role: 'muted', x, y, points: true }];
-				return [
-					{ label: `${o.label} (전체)`, role: 'ghost', x, y },
-					{ label: o.label, role: 'primary', x, y, points: true, head: true }
-				];
-			});
+				return { x: Array.from(it, (_, i) => i), y: Array.from(it, (u) => Math.abs(u - ref) * kmh.scale) };
+			};
+			const order = (o: (typeof alt.options)[number]) => alt.options.indexOf(o);
+			const full = curve(selected);
+			const series: PlotSeries[] = [
+				{ label: `${selected.label} (전체)`, role: 'ghost', ...full },
+				...alt.options
+					.filter((o) => o.key !== selected.key)
+					.map((o): PlotSeries => ({ label: o.label, role: 'muted', ...curve(o), points: true, order: order(o) })),
+				{ label: selected.label, role: 'primary', ...full, points: true, head: true, order: order(selected) }
+			];
 
 			let verdict: Result['verdict'];
 			let verdictText: string;
@@ -151,31 +155,7 @@
 		})
 	);
 
-	let reduced = false;
-	let restartTimer: ReturnType<typeof setTimeout> | undefined;
-	function startPlayback() {
-		if (reduced) playback.finish();
-		else playback.restart();
-	}
-	onMount(() => {
-		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		startPlayback();
-		return () => {
-			clearTimeout(restartTimer);
-			playback.dispose();
-		};
-	});
-	// Any control change restarts the playback once the controls have been still for RESTART_MS.
-	let seenControls = false;
-	$effect(() => {
-		void [{ ...values }, method, precision];
-		if (!seenControls) {
-			seenControls = true;
-			return;
-		}
-		clearTimeout(restartTimer);
-		restartTimer = setTimeout(startPlayback, RESTART_MS);
-	});
+	autoPlayback(playback, () => [{ ...values }, method, precision], RESTART_MS);
 	const selectedOption = $derived(alt.options.find((o) => o.value === method) ?? alt.options[0]);
 </script>
 

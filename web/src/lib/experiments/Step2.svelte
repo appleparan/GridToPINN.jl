@@ -14,7 +14,7 @@
 	import Verdict from '$lib/ui/Verdict.svelte';
 	import PlaybackControls from '$lib/ui/PlaybackControls.svelte';
 	import { EXPERIMENTS, PASS, defaultOf, findParam, initialValues } from './config';
-	import { createPlayback } from './playback.svelte';
+	import { autoPlayback, createPlayback } from './playback.svelte';
 	import { revealUpTo } from './reveal';
 
 	let { step }: { step: Step } = $props();
@@ -191,31 +191,7 @@
 	);
 	const playSpeed = $derived(head.y.length ? head.y[head.y.length - 1] : 0);
 
-	let reduced = false;
-	let restartTimer: ReturnType<typeof setTimeout> | undefined;
-	function startPlayback() {
-		if (reduced) playback.finish();
-		else playback.restart();
-	}
-	onMount(() => {
-		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		startPlayback();
-		return () => {
-			clearTimeout(restartTimer);
-			playback.dispose();
-		};
-	});
-	// Any control change restarts the playback once the controls have been still for RESTART_MS.
-	let seenControls = false;
-	$effect(() => {
-		void [{ ...values }, method, precision];
-		if (!seenControls) {
-			seenControls = true;
-			return;
-		}
-		clearTimeout(restartTimer);
-		restartTimer = setTimeout(startPlayback, RESTART_MS);
-	});
+	autoPlayback(playback, () => [{ ...values }, method, precision], RESTART_MS);
 
 	// Muted curves may have diverged by orders of magnitude: fit the axis to the good curves only.
 	const yRange = $derived.by(() => {

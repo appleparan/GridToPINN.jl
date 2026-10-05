@@ -131,4 +131,14 @@ describe('playback', () => {
 		s.tick();
 		expect(s.pb.progress).toBeCloseTo(0.75);
 	});
+
+	it('play()/restart() after dispose() keep the status and schedule nothing', () => {
+		const s = setup();
+		s.pb.dispose();
+		s.pb.restart();
+		expect(s.pb.status).not.toBe('playing');
+		s.pb.play();
+		expect(s.pb.status).not.toBe('playing');
+		expect(s.queue.length).toBe(0);
+	});
 });
