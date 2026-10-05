@@ -7,8 +7,12 @@
 # 같은 수를 내는지는 `node wasm/check_parity.mjs`가 확인한다.
 # 새 단계는 wasm/entries/stepN.jl 을 만들고 아래 STEPS 목록에 한 줄을 더하면 된다.
 
-using WasmTarget, JSON, Pkg
+using JSON, Pkg
 using GridToPINN
+# WasmTarget은 컴파일할 때만 불러온다. --check는 컴파일하지 않으므로 필요 없고,
+# 불러오지 않으면 CI에서 사전 컴파일 5분이 빠진다.
+const CHECK_ONLY = "--check" in ARGS
+CHECK_ONLY || @eval using WasmTarget
 
 include("spec.jl")
 include("bridge.jl")
@@ -80,4 +84,4 @@ function main()
     println("wrote ", OUT)
 end
 
-"--check" in ARGS ? check() : main()
+CHECK_ONLY ? check() : main()
