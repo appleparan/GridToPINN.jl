@@ -31,6 +31,10 @@ jobs:
       #    what the current source generates, and (next step) the committed .wasm must reproduce
       #    those values.
       - name: Committed WASM artifacts are up to date
+        # The check does not compile, so it never loads WasmTarget. Skip automatic
+        # precompilation of the whole build environment (about 5 minutes).
+        env:
+          JULIA_PKG_PRECOMPILE_AUTO: '0'
         run: |
           julia --project=wasm -e 'using Pkg; Pkg.instantiate()'
           julia --project=wasm wasm/build.jl --check
