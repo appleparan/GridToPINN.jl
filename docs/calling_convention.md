@@ -113,7 +113,7 @@ interface WasmFunction {
 | `f_poly` | `(x: number)` | `number` | x³ + 2x² + x (generic: `Dual{Float64}` 입력도 가능) |
 | `df_analytic` | `(x: number)` | `number` | 3x² + 4x + 1 |
 | `derivative_fd` | `(x: number, h: number)` | `number` | f_poly의 전진차분. h는 Float64 |
-| `derivative_dual` | `(x: number)` | `number` | f_poly의 Dual 자동미분 (정확, 오차 0). **WASM 컴파일됨. JS에서 Dual 입력 없이 호출 시 WebAssembly.Exception 발생** — JS에서는 `derivative_fd` 사용 권장 |
+| `derivative_dual` | `(x: number)` | `number` | f_poly의 Dual 자동미분 (정확, 오차 0). **브라우저(WasmGC)에서 정상 동작 확인**: e.derivative_dual(1.0) → 8.0. WASM 내부에서 Dual(x,1.0) 생성 후 f_poly_wasm 적용, .der 추출. JS에서 상수 number 전달 가능. |
 | `top_speed` | `(P, ρ, Cd, A, Froll, tol, maxiter)` | `number` | P[W], ρ[kg/m³], Cd[–], A[m²], Froll[N], tol[–], maxiter[Int64] |
 | `compare_drs` | `(P, ρ, A, Froll, Cd_closed, Cd_open, tol, maxiter)` | `number` | dv = v_open − v_closed |
 | `vec_new` | `(n: BigInt)` | `WasmGCVector` | 길이 n인 Vector{Float64} 생성. 반환값은 WasmGC struct 참조 |
@@ -123,6 +123,36 @@ interface WasmFunction {
 | `vec_sum` | `(v: WasmGCVector)` | `number` | 벡터 요소 합계 |
 | `dual_add` | `(d1: WasmGCDual, d2: WasmGCDual)` | `WasmGCDual` | **WasmGC struct 입력 필요 — JS에서 직접 호출 불가** (브릿지 필요) |
 | `dual_mul` | `(d1: WasmGCDual, d2: WasmGCDual)` | `WasmGCDual` | 위와 동일 |
+
+### 3.2.1. Step2 함수 (v0.2 추가, 같은 step1.wasm에 포함)
+
+Step2 시간 적분 커널. 적분기는 `f`를 Function 인자로 받는 원본 대신,
+`acceleration`에 특화된 concrete 버전으로 내보낸다 (WasmTarget은 Function 인자 미지원).
+
+| 함수명 | 인자 (WASM 호출 시) | 반환 | 비고 |
+|---|---|---|---|
+| `acceleration` | `(v, P, ρ, A, v_top: number)` | `number` | a(v) = (P/(ρ·A))·(1−(v/v_top)³). v=v_top이면 정확히 0 |
+| `euler_step` | `(y, Δt, P, ρ, A, v_top: number)` | `number` | Euler 1스텝: y + Δt·a(y). Δt/τ_char가 크면 진동·발산 (깨뜨리기) |
+| `rk4_step` | `(y, Δt, P, ρ, A, v_top: number)` | `number` | RK4 1스텝. Δt/τ_char > 0.113(선형화 안정 한계) 초과 시 발산 |
+| `top_speed_target` | `(P, ρ, Cd, A: number, tol: number, maxiter: BigInt)` | `number` | v_top = (2P/(ρ·Cd·A))^(1/3), 내부 Newton (구름저항 0) |
+| `ode_integrate` | `(y0, t0, t_end, Δt, P, ρ, A, v_top: number, method: BigInt)` | `WasmGCVector` | **평탄화 반환**: [t0, y0, t1, y1, …], 길이 = 2·(스텝수+1). method: 1n=euler, 2n=rk4. `vec_len`/`vec_get`으로 읽기 |
+
+Step2 참조값 (네이티브 Julia Float64와 비트 단위 일치, e2e 테스트로 확인):
+
+```
+P=50, ρ=1.225, A=0.55, Cd=0.20
+  v_top        = 9.05365084869835
+  a(0)         = 74.21150278293135   (= 50/(1.225·0.55))
+  a(v_top)     = 0
+  euler 1스텝(Δt=0.1, y=0) = 7.421150278293135
+  rk4   1스텝(Δt=0.1, y=0) = 6.539568953054083
+  ode_integrate(euler, t_end=0.5, Δt=0.1) 최종 y = 4.3770776605041055
+  ode_integrate(rk4,   t_end=0.5, Δt=0.1) 최종 y = 8.82007997835102
+```
+
+주의: 이 시스템은 강한 비선형(cubic 저항)이라 Δt/τ_char ≈ 0.82에서도
+Euler와 RK4가 진동하며 수렴한다. 정확도 비교는 반드시 동일 조건의
+네이티브/작은 Δt 기준해와 비교해서 해야 한다.
 
 ### 3.3. 인자 타입 매핑 (WasmTarget → JS)
 
@@ -675,8 +705,8 @@ export function checkWasmGCSupport(): { supported: boolean; browser: string; ver
 
 | 한계 | 영향 | 대응 |
 |---|---|---|
-| **Dual{Float64} JS 입출력 불가** | `dual_add`, `dual_mul`, `derivative_dual`은 WASM에서 컴파일되나 JS에서 Dual 입력 생성 불가 → 직접 호출 불가 | `derivative_fd`(전진차분)로 기능 대체. 또는 WASM 측 Dual 생성·반환 브릿지 함수 추가 (향후) |
-| **derivative_dual JS 호출 시 WebAssembly.Exception** | Dual 입력 없이 호출 시 예외 발생. 현재 JS에서는 사용 불가 | derivative_fd 사용. 듀얼수 개념 설명은 코드 표시로 충분 |
+| **Dual{Float64} JS 입출력 불가** | `dual_add`, `dual_mul`은 WASM에서 컴파일되나 JS에서 Dual 입력 생성 불가 → 직접 호출 불가 | Dual 입출력 브릿지 함수 추가 시 호출 가능 (향후). `derivative_fd`로 기능 대체 가능 |
+| **derivative_dual 브라우저 동작 확인** | `e.derivative_dual(1.0)` → 8.0 (브라우저에서 정상 동작). WASM 내부에서 Dual(x,1.0) 생성 후 f_poly_wasm 적용, .der 추출. JS에서 상수 number 전달 가능. | 추가 대응 불필요. 듀얼수 자동미분 실제로 브라우저에서 작동. |
 | **기본 인자(GlobalRef) 미지원** | 원본 `top_speed`, `newton` 등은 WASM 컴파일 불가 | 모든 WASM 진입점은 기본 인자 없이 모든 인자 명시. WASM 전용 래퍼 패턴 사용 |
 | **Function 인자 불가 (dynamic dispatch)** | `newton(f, df, ...)`의 f, df 인자 → dynamic dispatch → 컴파일 불가 | WASM에서는 구체적 함수 사용 또는 Newton 로직 직접 구현 |
 | **Vector 브릿지 요소별 호출 비용** | 격자 크기별 vec_set/vec_get 비용 미측정 | 7단계 Cavity 이전 측정 필요. 중소 격자(≤50×50)는 실용적 추정 |
